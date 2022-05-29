@@ -1,0 +1,41 @@
+.logo-image {
+    background-image: url(https://vfa.gov.vn/public/images/logo_share.png);
+    background-image: center center no-repeat;
+    width: 373px;
+    height: 122px;
+}
+.inherit-size {
+    width: inherit;
+    height: inherit;
+}
+.flex1 {
+    flex: 1;
+}
+.flex2 {
+    flex: 2;
+}
+.flex3 {
+    flex: 3;
+}
+.flex4 {
+    flex: 4;
+}
+.p30 {
+    padding: 30px;
+}
+.mr-auto {
+    margin: 0px auto;
+}
+.logo-field {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    color: rgb(0, 107, 9);
+    font-weight: bold;
+    font-size: 1.5em;
+}

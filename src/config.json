@@ -1,0 +1,8 @@
+{
+    "config": {
+        "headers": {
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
+    },
+    "apiUrl": "http://167.99.30.37:8000/api"
+}
