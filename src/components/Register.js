@@ -4,6 +4,7 @@ import axios from 'axios';
 import config from './../config.json';
 import Logo from './Logo.js';
 import './../css/login.css';
+import qs from 'qs';
 
 export default function Register(props) {
     const [username, setUsername] = useState('');
@@ -43,15 +44,40 @@ export default function Register(props) {
         const param = new URLSearchParams();
         param.append('username', username);
         param.append('password', password);
-        const url = config.apiUrl + '/users';
-        window.alert(url);
+        param.append('password2', password);
+        param.append('first_name', "An");
+        param.append('last_name', "Le");
+        param.append('role', "MN");
+        param.append('id_area', "1");
+        param.append('email', "lean68011@gmail.com");
+        const url = config.apiUrl + '/users/';
+        // console.log(param);
         axios.post(url, param, config.config)
         .then((res) => {
             window.location.href = '/login';
+            console.log("?| " + res);
         })
         .catch((err) => {
             console.log(err);
         });
+    }
+
+    const postReq = (details, url) => {
+        var formBody = [];
+        for (var property in details) {
+          var encodedKey = encodeURIComponent(property);
+          var encodedValue = encodeURIComponent(details[property]);
+          formBody.push(encodedKey + "=" + encodedValue);
+        }
+        formBody = formBody.join("&");
+        
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+          },
+          body: formBody
+        })        
     }
 
     const checkConfirmPassword = (event) => {
