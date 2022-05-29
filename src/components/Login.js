@@ -43,7 +43,7 @@ export default function Login(props) {
                     <input type="password" placeholder="Mật khẩu" value={password} onChange={(e) => setPassword(e.target.value)}/>
                     <span className={display(passwordNotice, "block")}>{passwordNotice}</span>
                     <input type="submit" className="submit" value = "ĐĂNG NHẬP" onClick = {onSubmitClick}/>
-                    <div className="regis-text">Chưa có tài khoản? <a href="/register">Đăng ký ngay</a></div>
+                    <div className="regis-text">Chưa có tài khoản? <a href="/register" className="link">Đăng ký ngay</a></div>
                 </div>
             </div>
         </div>

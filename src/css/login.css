@@ -1,6 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:wght@500&family=Lato&family=Nunito:wght@500&display=swap');
+
 * {
   box-sizing: border-box;
-  font-family: sans-serif;
+  font-family: 'Nunito', sans-serif;
 }
 @media (max-width: 620px) {
   .login {
@@ -21,7 +23,7 @@
   align-items: center;
   display: flex;
   overflow: auto;
-  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.801) , rgba(0, 123, 12, 0.675));
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.801) , rgba(0, 123, 12, 0.801));
 }
 .login {
   width: 820px;
@@ -83,11 +85,15 @@
 }
 .login .form .title {
   margin-top: 40px;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
   text-align: center;
   font-size: 2.5em;
   font-weight: bold;
-  color: rgba(4, 128, 0, 0.862);
+  color: rgba(3, 79, 0, 0.862);
+  font-family: 'Open Sans', sans-serif;
+  background: -webkit-linear-gradient(rgb(0, 190, 60), rgb(0, 182, 134));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 .hidden {
   display: hidden;
@@ -113,5 +119,14 @@
 }
 a {
   text-decoration: none;
+}
+.link {
+  color: rgb(3, 0, 196);
+}
+.link:hover {
+  font-weight: bold;
+  background: -webkit-linear-gradient(rgb(0, 175, 172), rgb(0, 182, 21));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 

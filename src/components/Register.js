@@ -14,13 +14,29 @@ export default function Register(props) {
     const [confirmPasswordNotice, setConfirmPasswordNotice] = useState('.');
 
     const onSubmitClick = () => {
-        if (!/[A-Za-z0-9]/.test(username)) {
-            setUsernameNotice('Tên đăng nhập chứa ký tự đặc biệt'); return;
+        var valid = checkUsername(username) + checkPassword(password);
+        if (valid < 1) sendRegistration();
+    }
+
+    const checkUsername = (username) => {
+        let usernameLength = username.length;
+        if (usernameLength < 4){
+            setUsernameNotice('Tên đăng nhập phải chứa ít nhất 4 ký tự'); return 1;
+        } else if (!/[A-Za-z0-9]/.test(username)) {
+            setUsernameNotice('Tên đăng nhập không được chứa ký tự đặc biệt'); return 1;
         } else setUsernameNotice('.');
-        if (username === password) {
-            setPasswordNotice('Mật khẩu không được trùng với tên đăng nhập'); return;
+        return 0;
+    }
+
+    const checkPassword = (password) => {
+        let passwordLength = password.length;
+        if (passwordLength < 6) {
+            setPasswordNotice('Mật khẩu phải chứa ít nhất 6 ký tự'); return 1;
         } else setPasswordNotice('.');
-        sendRegistration();
+        if (username === password) {
+            setPasswordNotice('Mật khẩu không được trùng với tên đăng nhập'); return 1;
+        } else setPasswordNotice('.');
+        return 0;
     }
 
     const sendRegistration = () => {
@@ -30,13 +46,12 @@ export default function Register(props) {
         const url = config.apiUrl + '/users';
         window.alert(url);
         axios.post(url, param, config.config)
-            .then((res) => {
-                window.open("/login");
-            })
-            .catch((err) => {
-                console.log(err);
-            });
-            window.open("/login");
+        .then((res) => {
+            window.location.href = '/login';
+        })
+        .catch((err) => {
+            console.log(err);
+        });
     }
 
     const checkConfirmPassword = (event) => {
@@ -61,14 +76,14 @@ export default function Register(props) {
                     <div className="title">
                         Đăng ký
                     </div>
-                    <input type="text" placeholder="Tên đăng nhập" value={username} onChange={(e) => setUsername(e.target.value)}/>
+                    <input type="text" placeholder="Tên đăng nhập" value={username} onChange={(e) => {setUsername(e.target.value); checkUsername(e.target.value)}}/>
                     <span className={display(usernameNotice, "block")}>{usernameNotice}</span>
-                    <input type="password" placeholder="Mật khẩu" value={password} onChange={(e) => setPassword(e.target.value)}/>
+                    <input type="password" placeholder="Mật khẩu" value={password} onChange={(e) => {setPassword(e.target.value); checkPassword(e.target.value)}}/>
                     <span className={display(passwordNotice, "block")}>{passwordNotice}</span>
                     <input type="password" placeholder="Xác nhận mật khẩu" value={confirmPassword} onChange={(e) => checkConfirmPassword(e)} />
                     <span className={display(confirmPasswordNotice, "block")}>{confirmPasswordNotice}</span>
                     <input type="submit" className="submit" value = "ĐĂNG KÝ" onClick = {onSubmitClick}/>
-                    <div className="regis-text">Đã có tài khoản? <a href="/login">Đăng nhập</a></div>
+                    <div className="regis-text">Đã có tài khoản? <a href="/login" className="link">Đăng nhập</a></div>
                 </div>
             </div>
         </div>
