@@ -50,7 +50,7 @@ export default function Register(props) {
         param.append('role', "MN");
         param.append('id_area', "1");
         param.append('email', "lean68011@gmail.com");
-        const url = config.apiUrl + '/users/';
+        const url = config.apiUrl + 'users/';
         // console.log(param);
         axios.post(url, param, config.config)
         .then((res) => {

@@ -4,5 +4,6 @@
             "Content-Type": "application/x-www-form-urlencoded"
         }
     },
-    "apiUrl": "http://167.99.30.37:8000/api"
+    "apiUrl": "http://167.99.30.37:8000/api/",
+    "logoUrl": "https://vfa.gov.vn/public/images/logo_share.png"
 }
