@@ -25,6 +25,7 @@ export default class Home extends Component {
             error.message ||
             error.toString()
         });
+        window.location.href = "/login";
       }
     );
   }
