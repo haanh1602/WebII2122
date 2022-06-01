@@ -12,18 +12,18 @@ export default class Home extends Component {
   }
 
   componentDidMount() {
-    UserService.getPublicContent().then(
+    UserService.getUserBoard().then(
       response => {
         this.setState({
-          content: response.data
+          content: response.data.detail
         });
       },
       error => {
         this.setState({
-          content:
-            (error.response && error.response.data) ||
-            error.message ||
-            error.toString()
+          content: error.response.data.detail
+            // (error.response && error.response.data) ||
+            // error.message ||
+            // error.toString()
         });
         window.location.href = "/login";
       }
