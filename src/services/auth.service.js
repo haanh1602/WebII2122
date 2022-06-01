@@ -1,5 +1,6 @@
 import axios from "axios";
 import config from './../config.json';
+import UserService from './user.service';
 
 const API_URL = config.apiUrl;
 
@@ -13,9 +14,14 @@ class AuthService {
       })
       .then(response => {
         if (response.data.access) {
-          localStorage.setItem("user", JSON.stringify(response.data));
+          const user = {
+            access: response.data.access,
+            refresh: response.data.refresh,
+            username: username,
+            password: password
+          };
+          localStorage.setItem("user", JSON.stringify(user));
         }
-        console.log(response);
         return response.data;
       })
       .catch((error) => {

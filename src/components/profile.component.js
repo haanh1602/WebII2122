@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import AuthService from "../services/auth.service";
+import UserService from "../services/user.service";
 
 export default class Profile extends Component {
   constructor(props) {
@@ -9,15 +10,17 @@ export default class Profile extends Component {
     this.state = {
       redirect: null,
       userReady: false,
-      currentUser: { username: "" }
+      currentUser: { username: "" },
+      currenUserInfo: {}
     };
   }
 
   componentDidMount() {
     const currentUser = AuthService.getCurrentUser();
-
+    const currentUserInfo = UserService.getUserInfo(currentUser.username);
     if (!currentUser) this.setState({ redirect: "/home" });
     this.setState({ currentUser: currentUser, userReady: true })
+    this.setState({currentUserInfo: currentUserInfo});
   }
 
   render() {
@@ -25,7 +28,7 @@ export default class Profile extends Component {
       return <Redirect to={this.state.redirect} />
     }
 
-    const { currentUser } = this.state;
+    const { currentUser, currentUserInfo } = this.state;
 
     return (
       <div className="container">
@@ -43,11 +46,11 @@ export default class Profile extends Component {
         </p>
         <p>
           <strong>Id:</strong>{" "}
-          {currentUser.id}
+          {currentUserInfo.id}
         </p>
         <p>
           <strong>Email:</strong>{" "}
-          {currentUser.email}
+          {currentUserInfo.email}
         </p>
         <strong>Authorities:</strong>
         <ul>
