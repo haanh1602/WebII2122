@@ -2,6 +2,7 @@ import React, { Component } from "react";
 
 import PremisesService from "../services/premises.service";
 import EventBus from "../common/EventBus";
+import AuthService from "../services/auth.service";
 
 export default class Premises extends Component {
   constructor(props) {
@@ -10,6 +11,10 @@ export default class Premises extends Component {
     this.state = {
       data: [],
     };
+  }
+
+  componentWillMount() {
+    if (!AuthService.getCurrentUser())  window.location.href = "/login";
   }
 
   componentDidMount() {
@@ -21,6 +26,7 @@ export default class Premises extends Component {
         this.setState({
           data: response.data
         });
+        console.log(response);
       },
       error => {
         this.setState({

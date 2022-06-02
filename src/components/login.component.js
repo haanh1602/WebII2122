@@ -4,6 +4,7 @@ import Input from "react-validation/build/input";
 import CheckButton from "react-validation/build/button";
 
 import AuthService from "../services/auth.service";
+import UserService from "../services/user.service";
 
 const required = value => {
   if (!value) {
@@ -26,7 +27,9 @@ export default class Login extends Component {
       username: "",
       password: "",
       loading: false,
-      message: ""
+      message: "",
+      userReady: false,
+      gettingUser: false,
     };
   }
 
@@ -54,22 +57,21 @@ export default class Login extends Component {
 
     if (this.checkBtn.context._errors.length === 0) {
       AuthService.login(this.state.username, this.state.password).then(
-        () => {
-          this.props.history.push("/profile");
-          window.location.reload();
-        },
-        error => {
-          const resMessage =
-            (error.response &&
-              error.response.data &&
-              error.response.data.message) ||
-            error.message ||
-            error.toString();
-
-          this.setState({
-            loading: false,
-            message: resMessage
-          });
+        (response) => {
+          console.log(response);
+          if (response.response && response.response.status === 401) {
+            const resMessage = response.response.data.detail;
+            this.setState({message: resMessage})
+            this.setState({
+              loading: false,
+            });
+          }
+          else {
+            const resMessage = "";
+            this.setState({message: resMessage})
+            this.setState({gettingUser: true});
+          }
+          
         }
       );
     } else {
@@ -80,6 +82,32 @@ export default class Login extends Component {
   }
 
   render() {
+    if (this.state.gettingUser) {
+      this.setState({gettingUser: false});
+      const user = JSON.parse(localStorage.getItem('user')); 
+      UserService.getUserInfo(user.username).then((response) => {
+        const userInfo = {
+          access: user.access,
+          refresh: user.refresh,
+          username: response.data.username,
+          first_name: response.data.first_name,
+          last_name: response.data.last_name,
+          email: response.data.email,
+          id_area: response.data.id_area,
+          is_manager: response.data.is_manager,
+          groups: response.data.groups,
+        }
+        localStorage.setItem('user', JSON.stringify(userInfo));
+        this.setState({userReady: true});
+      }).catch((err) => {
+        console.log(err);
+      })
+    }
+    if (this.state.userReady && !this.state.gettingUser) {
+      this.setState({userReady: false});
+      this.props.history.push("/profile");
+      window.location.reload();
+    }
     return (
       <div className="col-md-12">
         <div className="card card-container">

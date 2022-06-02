@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 
 import UserService from "../services/user.service";
+import AuthService from "../services/auth.service";
 
 export default class Home extends Component {
   constructor(props) {
@@ -9,6 +10,10 @@ export default class Home extends Component {
     this.state = {
       content: ""
     };
+  }
+
+  componentWillMount() {
+    if (!AuthService.getCurrentUser())  window.location.href = "/login";
   }
 
   componentDidMount() {
@@ -34,7 +39,9 @@ export default class Home extends Component {
     return (
       <div className="container">
         <header className="jumbotron">
-          <h3>{this.state.content}</h3>
+          {!AuthService.getCurrentUser? <h3>{this.state.content}</h3> 
+          : <div>Hello {AuthService.getCurrentUser().first_name}!</div>}
+
         </header>
       </div>
     );

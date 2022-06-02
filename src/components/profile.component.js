@@ -19,7 +19,19 @@ export default class Profile extends Component {
     const currentUser = AuthService.getCurrentUser();
     const currentUserInfo = UserService.getUserInfo(currentUser.username).then((response) => {
       this.setState({ currentUserInfo: response.data });
-      console.log(response.data);
+      const user = JSON.parse(localStorage.getItem('user'));  
+      const userInfo = {
+        access: user.access,
+        refresh: user.refresh,
+        username: response.data.username,
+        first_name: response.data.first_name,
+        last_name: response.data.last_name,
+        email: response.data.email,
+        id_area: response.data.id_area,
+        is_manager: response.data.is_manager,
+        groups: response.data.groups,
+      }
+      localStorage.setItem('user', JSON.stringify(userInfo));
       return response;
     });
     if (!currentUser) this.setState({ redirect: "/home" });

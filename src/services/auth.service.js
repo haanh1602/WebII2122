@@ -19,28 +19,12 @@ class AuthService {
             refresh: response.data.refresh,
             username: username
           };
-          localStorage.setItem("user", JSON.stringify(user));
-          UserService.getUserInfo(user.username).then(response => {
-            const user = JSON.parse(localStorage.getItem('user'));
-            const userInfo = {
-              access: user.access,
-              refresh: user.refresh,
-              username: response.data.username,
-              first_name: response.data.first_name,
-              last_name: response.data.last_name,
-              email: response.data.email,
-              id_area: response.data.id_area,
-              is_manager: response.data.is_manager,
-              groups: response.data.groups,
-            }
-            localStorage.removeItem("user");
-            localStorage.setItem("user", JSON.stringify(userInfo));
-          });
+          localStorage.setItem('user', JSON.stringify(user));
         }
         return response.data;
       })
       .catch((error) => {
-        console.log(error);
+        return error;
       });
   }
 
@@ -58,7 +42,7 @@ class AuthService {
   }
 
   getCurrentUser() {
-    return JSON.parse(localStorage.getItem('user'));;
+    return JSON.parse(localStorage.getItem('user'));
   }
 }
 

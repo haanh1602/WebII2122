@@ -1,21 +1,24 @@
 import React, { Component } from "react";
 
-import UserService from "../services/user.service";
+import CertificateService from "../services/certificate.service";
 import EventBus from "../common/EventBus";
 import AuthService from "../services/auth.service";
 
-export default class BoardUser extends Component {
+export default class Certificate extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      content: "",
       data: [],
     };
   }
 
+  componentWillMount() {
+    if (!AuthService.getCurrentUser())  window.location.href = "/login";
+  }
+
   componentDidMount() {
-    UserService.getUserBoard().then(
+    CertificateService.getCertificates().then(
       response => {
         this.setState({
           content: response.statusText
@@ -23,7 +26,7 @@ export default class BoardUser extends Component {
         this.setState({
           data: response.data
         });
-        console.log(response.data);
+        console.log(response);
       },
       error => {
         this.setState({
@@ -35,27 +38,26 @@ export default class BoardUser extends Component {
             error.toString()
         });
 
-        if (error.response && error.response.status === 401) {
-          EventBus.dispatch("logout");
-        }
+        // if (error.response && error.response.status === 401) {
+        //   EventBus.dispatch("logout");
+        // }
       }
     );
   }
 
   renderContent() {
-    return this.state.data.map((user, index) => {
-      const {email, first_name, groups, id_area, is_manager, last_name, username} = user;
-      return (
-        is_manager? <p key={username}>Email: {email}, Name: {first_name} {last_name}, Area: {id_area}, Username: {username}</p> : null
-      );
-    });
+    // return this.state.data.map((user, index) => {
+    //   const {email, first_name, groups, id_area, is_manager, last_name, username} = user;
+    //   return (
+    //     is_manager? <p key={username}>Email: {email}, Name: {first_name} {last_name}, Area: {id_area}, Username: {username}</p> : null
+    //   );
+    // });
   }
 
   render() {
     return (
       <div className="container">
         <header className="jumbotron">
-          {this.renderContent()}
           <h3>{this.state.content}</h3>
         </header>
       </div>
