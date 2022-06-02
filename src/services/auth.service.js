@@ -33,9 +33,9 @@ class AuthService {
               is_manager: response.data.is_manager,
               groups: response.data.groups,
             }
+            localStorage.removeItem("user");
             localStorage.setItem("user", JSON.stringify(userInfo));
           });
-          console.log(JSON.parse(localStorage.getItem('user')));
         }
         return response.data;
       })
