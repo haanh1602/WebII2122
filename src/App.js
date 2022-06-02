@@ -18,6 +18,7 @@ import BoardUser from "./components/board-user.component";
 import BoardModerator from "./components/board-moderator.component";
 import BoardAdmin from "./components/board-admin.component";
 import Premises from "./components/board-premises.component";
+import Inspection from "./components/board-inspection.component";
 
 // import AuthVerify from "./common/auth-verify";
 import EventBus from "./common/EventBus";
@@ -139,6 +140,23 @@ class App extends Component {
                 </Link>
               </li>
             )}
+
+            {currentUser && (
+              <li className={"nav-item" + this.selectedNav("inspection")}>
+                <Link to={"/inspection"} className="nav-link" onClick={() => this.setState({navSelected: "inspection"})}>
+                Inspection
+                </Link>
+              </li>
+            )}
+
+            {currentUser && (
+              <li className={"nav-item" + this.selectedNav("certificate")}>
+                <Link to={"/certificate"} className="nav-link" onClick={() => this.setState({navSelected: "certificate"})}>
+                Certificate
+                </Link>
+              </li>
+            )}
+
           </div>
         </nav>
         )}
@@ -152,6 +170,7 @@ class App extends Component {
             <Route path="/mod" component={BoardModerator} />
             <Route path="/admin" component={BoardAdmin} />
             <Route path="/premises" component={Premises} />
+            <Route path="/inspection" component={Inspection} />
           </Switch>
         </div>
 

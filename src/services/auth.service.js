@@ -17,10 +17,25 @@ class AuthService {
           const user = {
             access: response.data.access,
             refresh: response.data.refresh,
-            username: username,
-            password: password
+            username: username
           };
           localStorage.setItem("user", JSON.stringify(user));
+          UserService.getUserInfo(user.username).then(response => {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const userInfo = {
+              access: user.access,
+              refresh: user.refresh,
+              username: response.data.username,
+              first_name: response.data.first_name,
+              last_name: response.data.last_name,
+              email: response.data.email,
+              id_area: response.data.id_area,
+              is_manager: response.data.is_manager,
+              groups: response.data.groups,
+            }
+            localStorage.setItem("user", JSON.stringify(userInfo));
+          });
+          console.log(JSON.parse(localStorage.getItem('user')));
         }
         return response.data;
       })
