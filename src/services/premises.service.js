@@ -6,48 +6,23 @@ const API_URL = config.apiUrl;
 
 class PremisesService {
     getPremises() {
-        return axios.get(API_URL + 'premises').then((response) => {
-            console.log(response);
-            return response;
-        }).catch((error) => {
-            console.log(error);
-        })
+        return axios.get(API_URL + 'premises/', { headers: authHeader() });
     }
 
     getPremiseInfo(premiseId) {
-        return axios.get(API_URL + 'premises/' + premiseId).then((response) => {
-            console.log(response);
-            return response;
-        }).catch((error) => {
-            console.log(error);
-        })
+        return axios.get(API_URL + 'premises/' + premiseId + "/", { headers: authHeader() });
     }
 
     createPremise(data) {
-        return axios.post(API_URL + 'premises', data).then((response) => {
-            console.log(response);
-            return response;
-        }).catch((error) => {
-            console.log(error);
-        })
+        return axios.post(API_URL + 'premises/', data + "/", { headers: authHeader() });
     }
 
     updatePremise(data) {
-        return axios.patch(API_URL + 'premises', data).then((response) => {
-            console.log(response);
-            return response;
-        }).catch((error) => {
-            console.log(error);
-        })
+        return axios.patch(API_URL + 'premises/', data + "/", { headers: authHeader() });
     }
 
     deletePremise(premiseId) {
-        return axios.delete(API_URL + 'premises/' + premiseId).then((response) => {
-            console.log(response);
-            return response;
-        }).catch((error) => {
-            console.log(error);
-        })
+        return axios.delete(API_URL + 'premises/' + premiseId + "/", { headers: authHeader() });
     }
 }
 

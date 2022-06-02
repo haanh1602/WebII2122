@@ -17,10 +17,14 @@ export default class Profile extends Component {
 
   componentDidMount() {
     const currentUser = AuthService.getCurrentUser();
-    const currentUserInfo = UserService.getUserInfo(currentUser.username);
+    const currentUserInfo = UserService.getUserInfo(currentUser.username).then((response) => {
+      this.setState({ currentUserInfo: response.data });
+      console.log(response.data);
+      return response;
+    });
     if (!currentUser) this.setState({ redirect: "/home" });
     this.setState({ currentUser: currentUser, userReady: true })
-    this.setState({currentUserInfo: currentUserInfo});
+    this.setState({ currentUserInfo: currentUserInfo});
   }
 
   render() {
@@ -36,27 +40,25 @@ export default class Profile extends Component {
         <div>
         <header className="jumbotron">
           <h3>
-            <strong>{currentUser.username}</strong> Profile
+            <strong>{currentUserInfo.first_name} {currentUserInfo.last_name}</strong> Profile
           </h3>
         </header>
         <p>
-          <strong>Token:</strong>{" "}
-          {currentUser.access.substring(0, 20)} ...{" "}
-          {currentUser.access.substr(currentUser.access.length - 20)}
-        </p>
-        <p>
-          <strong>Id:</strong>{" "}
-          {currentUserInfo.id}
+          <strong>Username:</strong>{" "}
+          {currentUserInfo.username}
         </p>
         <p>
           <strong>Email:</strong>{" "}
           {currentUserInfo.email}
         </p>
-        <strong>Authorities:</strong>
-        <ul>
-          {currentUser.roles &&
-            currentUser.roles.map((role, index) => <li key={index}>{role}</li>)}
-        </ul>
+        <p>
+        <strong>Position:</strong>
+          {currentUserInfo.is_manager? " Manager" : " Expert"}
+        </p>
+        <p>
+        <strong>Area:</strong>{" "}
+          {currentUserInfo.id_area}
+        </p>
       </div>: null}
       </div>
     );

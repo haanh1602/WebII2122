@@ -6,48 +6,23 @@ const API_URL = config.apiUrl;
 
 class InspectionService {
     getInspections() {
-        return axios.get(API_URL + 'inspectionplan').then((response) => {
-            console.log(response);
-            return response;
-        }).catch((error) => {
-            console.log(error);
-        })
+        return axios.get(API_URL + 'inspectionplan/', { headers: authHeader() });
     }
 
     getInspectionInfo(inspectionplanId) {
-        return axios.get(API_URL + 'inspectionplan/' + inspectionplanId).then((response) => {
-            console.log(response);
-            return response;
-        }).catch((error) => {
-            console.log(error);
-        })
+        return axios.get(API_URL + 'inspectionplan/' + inspectionplanId + "/", { headers: authHeader() });
     }
 
     createInspection(data) {
-        return axios.post(API_URL + 'inspectionplan', data).then((response) => {
-            console.log(response);
-            return response;
-        }).catch((error) => {
-            console.log(error);
-        })
+        return axios.post(API_URL + 'inspectionplan/', data + "/", { headers: authHeader() });
     }
 
     updateInspection(data) {
-        return axios.patch(API_URL + 'inspectionplan', data).then((response) => {
-            console.log(response);
-            return response;
-        }).catch((error) => {
-            console.log(error);
-        })
+        return axios.patch(API_URL + 'inspectionplan/', data + "/", { headers: authHeader() });
     }
 
     deleteInspection(inspectionplanId) {
-        return axios.delete(API_URL + 'inspectionplan/' + inspectionplanId).then((response) => {
-            console.log(response);
-            return response;
-        }).catch((error) => {
-            console.log(error);
-        })
+        return axios.delete(API_URL + 'inspectionplan/' + inspectionplanId + "/", { headers: authHeader() });
     }
 }
 

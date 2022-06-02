@@ -22,7 +22,7 @@ class UserService {
   }
 
   getUserInfo(username) {
-    return axios.get(API_URL + "users/" + username, { headers: authHeader() });
+    return axios.get(API_URL + "users/" + username + "/", { headers: authHeader() });
   }
 }
 

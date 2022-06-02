@@ -17,6 +17,7 @@ import Profile from "./components/profile.component";
 import BoardUser from "./components/board-user.component";
 import BoardModerator from "./components/board-moderator.component";
 import BoardAdmin from "./components/board-admin.component";
+import Premises from "./components/board-premises.component";
 
 // import AuthVerify from "./common/auth-verify";
 import EventBus from "./common/EventBus";
@@ -132,8 +133,10 @@ class App extends Component {
             )}
 
             {currentUser && (
-              <li className={"nav-item" + this.selectedNav("area")}>
-                <button className="nav-link" onClick={AreaService.getAreas}>Area</button>
+              <li className={"nav-item" + this.selectedNav("premises")}>
+                <Link to={"/premises"} className="nav-link" onClick={() => this.setState({navSelected: "premises"})}>
+                Premises
+                </Link>
               </li>
             )}
           </div>
@@ -148,6 +151,7 @@ class App extends Component {
             <Route path="/user" component={BoardUser} />
             <Route path="/mod" component={BoardModerator} />
             <Route path="/admin" component={BoardAdmin} />
+            <Route path="/premises" component={Premises} />
           </Switch>
         </div>
 
