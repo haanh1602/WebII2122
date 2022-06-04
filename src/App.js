@@ -1,10 +1,11 @@
 import React, { Component } from "react";
 import { Switch, Route, Link } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
 import "./App.css";
 
 import AuthService from "./services/auth.service";
 import UserService from "./services/user.service";
+import config from "./config.json";
 
 import Login from "./components/login.component";
 import Register from "./components/register.component";
@@ -68,8 +69,11 @@ class App extends Component {
       <div className="background">
         <nav className="navbar navbar-expand nav-top">
           <Link to={"/"} className="navbar-brand" onClick={() => this.setState({navSelected: ""})}>
-            ANDZ
+            <img src={config.logoUrl} alt="logo" width="80" height="80" />
           </Link>
+          <div className ="top-font">
+            Bộ y tế<br/>Cục an toàn vệ sinh thực phẩm
+          </div>
           {currentUser ? (
             <div className="navbar-nav ml-auto">
               <li className={"nav-item" + this.selectedNav("profile")}>

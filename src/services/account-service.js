@@ -14,6 +14,7 @@ class AccountService {
     }
 
     createArea(data) {
+        console.log(data);
         return axios.post(API_URL + 'area/', data + "/", { headers: authHeader() });
     }
 

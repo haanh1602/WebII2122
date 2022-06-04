@@ -33,6 +33,10 @@ export default class Login extends Component {
     };
   }
 
+  componentDidMount() {
+    if (AuthService.getCurrentUser()) window.location.href = "/home";
+  }
+
   onChangeUsername(e) {
     this.setState({
       username: e.target.value

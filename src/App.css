@@ -108,3 +108,124 @@ a {
   background-color:rgba(61, 64, 255, 0.314);
   font-weight: bold;
 }
+
+.top-font {
+  color:rgb(255, 255, 255);
+}
+
+.app-table {
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.add-field {
+  margin: auto;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.sp-around {
+  justify-content: space-around;
+}
+
+.sp-between {
+  justify-content: space-between;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mx-w-80 {
+  max-width: 80px;
+}
+
+.mx-w-100 {
+  max-width: 100px;
+}
+
+.mx-w-120 {
+  max-width: 120px;
+}
+
+.mx-w-200 {
+  max-width: 200px;
+}
+
+.mn-w-50 {
+  min-width: 50px;
+}
+
+.mn-w-80 {
+  min-width: 80px;
+}
+
+.mn-w-100 {
+  min-width: 100px;
+}
+
+.mn-w-120 {
+  min-width: 120px;
+}
+
+.mr-r-5 {
+  margin-right: 5px;
+}
+
+.jus-center {
+  justify-content: center;
+}
+
+.pd-top-10 {
+  padding-top: 10px;
+}
+
+.pd-bottom-10 {
+  padding-bottom: 10px;
+}
+
+.pd-top-7 {
+  padding-top: 7px;
+}
+
+.input-div {
+  max-width: 600px;
+  min-width: 240px;
+}
+
+.div-center {
+  align-items: center;
+  justify-content: center;
+}
+
+.my-form-group {
+  min-width: 400px;
+}
+
+.my-form {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.tiny-alert {
+  margin-left: 10px;
+  color:rgb(235, 0, 8);
+  font-size: 10px;
+}
+
+.into {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 80px;
+  max-width: 100px;
+}
+
+.add-field {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

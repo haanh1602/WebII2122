@@ -1,6 +1,7 @@
 import axios from 'axios';
 import authHeader from './auth-header';
 import config from './../config.json';
+import AuthService from "../services/auth.service";
 
 const API_URL = config.apiUrl;
 
@@ -14,15 +15,29 @@ class PremisesService {
     }
 
     createPremise(data) {
-        return axios.post(API_URL + 'premises/', data + "/", { headers: authHeader() });
+        
+        return axios.post(API_URL + 'premises/', data, { headers: authHeader() });
     }
 
     updatePremise(data) {
-        return axios.patch(API_URL + 'premises/', data + "/", { headers: authHeader() });
+        return axios.patch(API_URL + 'premises/', data, { headers: authHeader() });
     }
 
     deletePremise(premiseId) {
         return axios.delete(API_URL + 'premises/' + premiseId + "/", { headers: authHeader() });
+    }
+
+    auth() {
+        var user = AuthService.getCurrentUser();
+        if (!user) return null;
+        var auth = {
+            view: true,
+            edit: user.is_manager,
+            delete: user.is_manager,
+            create: user.is_manager,
+            displayAction: user.is_manager
+        }
+        return auth;
     }
 }
 
