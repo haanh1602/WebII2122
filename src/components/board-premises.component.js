@@ -8,13 +8,15 @@ import PremisesService from "../services/premises.service";
 import EventBus from "../common/EventBus";
 import AuthService from "../services/auth.service";
 import AreaService from "../services/area.service";
+import BusinessService from "../services/business.service";
 
 import {QuanOption, PhuongOption} from "./area-option.component";
+import BusinessOption from "./business-type-option.component";
 
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
-var tableHeader = ["Name", "Area", "Address", "Business", "Certificate", "Phone"];
+var tableHeader = ["Tên", "Khu vực", "Địa chỉ", "Kinh doanh", "Chứng nhận", "Điện thoại"];
 
 export default class Premises extends Component {
   constructor(props) {
@@ -30,7 +32,7 @@ export default class Premises extends Component {
 
   componentWillMount() {
     if (!AuthService.getCurrentUser())  window.location.href = "/login";
-    if (PremisesService.auth().displayAction && !tableHeader.includes("Action")) tableHeader.push("Action");
+    if (PremisesService.auth().displayAction && !tableHeader.includes("Sửa/Xóa")) tableHeader.push("Sửa/Xóa");
   }
 
   componentDidMount() {
@@ -59,8 +61,6 @@ export default class Premises extends Component {
         // }
       }
     );
-    console.log(AreaService.idToQuan(1100));
-    console.log(AreaService.idToPhuong(1008));
   }
 
   handleClickDelete = (id) => {
@@ -76,11 +76,11 @@ export default class Premises extends Component {
       customUI: ({ onClose }) => {
         return (
           <div className='custom-ui'>
-            <h1>Are you sure?</h1>
-            <p>You want to delete this?</p>
+            <h1>Đồng ý xóa?</h1>
+            <p>Bạn muốn xóa cơ sở này?</p>
             <div style={{display: 'flex', justifyContent: 'space-around'}}>
-              <button className = "btn btn-primary" onClick={() => {this.handleClickDelete(premise.id); onClose();}}>Yes</button>
-              <button className = "btn btn-danger" onClick={onClose}>No</button>
+              <button className = "btn btn-primary" onClick={() => {this.handleClickDelete(premise.id); onClose();}}>Có</button>
+              <button className = "btn btn-danger" onClick={onClose}>Không</button>
             </div>
             
           </div>
@@ -130,8 +130,8 @@ export default class Premises extends Component {
                     <td>{name}</td>
                     <td>{AreaService.idToArea(id_area)}</td>
                     <td>{address}</td>
-                    <td>{id_business_type}</td>
-                    <td>{id_certificate? id_certificate : "None"}</td>
+                    <td>{BusinessService.getBusiness(id_business_type)}</td>
+                    <td>{id_certificate? id_certificate : "Không có"}</td>
                     <td>{phone_number}</td>
                     {this.actions(premise)}
                   </tr>
@@ -150,11 +150,11 @@ export default class Premises extends Component {
       <>
       {(this.state.data && this.state.data.length > 0)? this.renderContent() : 
         <div className="jumbotron">
-          <div>Premises is empty!</div>
+          <div>Không có cơ sở nào!</div>
           <div>Network: {this.state.content} </div>
         </div>}
         <div className="add-field">
-          <button className="btn btn-success" onClick={() => {this.setState({showAdd: true})}}><span className="fa fa-plus"/> New</button>
+          <button className="btn btn-success" onClick={() => {this.setState({showAdd: true})}}><span className="fa fa-plus"/> Thêm</button>
         </div>
       </>
     )
@@ -224,46 +224,47 @@ function AddView(props){
 
   return (
     <div className="jumbotron" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
-      <h3 style={{textAlign: 'center'}}>ADD PREMISE</h3>
+      <h3 style={{textAlign: 'center'}}>THÊM CƠ SỞ</h3>
       <form className="form">
         <div className="form-group my-form-group form flex-row sp-between input-div div-center">
-          <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Name</div>
-          <input type="text" className="form-control form-input" placeholder="Premise name" value={name} onChange={(e) => setName(e.target.value)}/>
+          <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Tên</div>
+          <input type="text" className="form-control form-input" placeholder="Tên cơ sở" value={name} onChange={(e) => setName(e.target.value)}/>
           {note? <div className="tiny-alert" role="alert">{note.name}</div> : null}
         </div>
         <div className="form-group my-form-group form flex-row sp-between input-div div-center">
-          <div className=" mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Area</div>
+          <div className=" mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Khu vực</div>
           <QuanOption choose={(quanId) => {
                   setQuan(quanId);
-                  console.log(quanId);
                 }}/>
           <PhuongOption areaId = {quan} choose={(phuongId) => {setPhuong(phuongId); console.log(phuongId);}}/>
           {note? <div className="tiny-alert" role="alert">{note.id_area}</div> : null}
         </div>
         <div className="form-group my-form-group form flex-row sp-between input-div div-center">
-          <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Address</div>
-          <input type="text" className="form-control form-input" placeholder="Address" value={address} onChange={(e) => setAddress(e.target.value)}/>
+          <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Địa chỉ</div>
+          <input type="text" className="form-control form-input" placeholder="Địa chỉ" value={address} onChange={(e) => setAddress(e.target.value)}/>
           {note? <div className="tiny-alert" role="alert">{note.address}</div> : null}
         </div>
         <div className="form-group my-form-group form flex-row sp-between input-div div-center">
-          <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Business</div>
-          <input type="text" className="form-control form-input" placeholder="Business" value={business} onChange={(e) => setBusiness(e.target.value)}/>
+          <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Kinh doanh</div>
+          <BusinessOption choose={(businessTypeId) => {
+            setBusiness(businessTypeId);
+          }}/>
           {note? <div className="tiny-alert" role="alert">{note.id_business_type}</div> : null}
         </div>
         <div className="form-group my-form-group form flex-row sp-between input-div div-center">
-          <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Certificate</div>
-          <input type="text" className="form-control form-input" placeholder="Certificate" value={certificate} onChange={(e) => setCertificate(e.target.value)}/>
+          <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Chứng nhận</div>
+          <input type="text" className="form-control form-input" placeholder="Chứng nhận" value={certificate} onChange={(e) => setCertificate(e.target.value)}/>
           {note? <div className="tiny-alert" role="alert">{note.certificate}</div> : null}
         </div>
         <div className="form-group my-form-group form flex-row sp-between input-div div-center">
-          <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Phone</div>
-          <input type="text" className="form-control form-input" placeholder="Phone" value={phone} onChange={(e) => setPhone(e.target.value)}/>
+          <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Điện thoại</div>
+          <input type="text" className="form-control form-input" placeholder="Điện thoại" value={phone} onChange={(e) => setPhone(e.target.value)}/>
           {note? <div className="tiny-alert" role="alert">{note.phone_number}</div> : null}
         </div>
       </form>
       <div className="form-group my-form-group " style={{display: 'flex', justifyContent: 'space-around'}}>
-        <button className = "btn btn-success" onClick={accept}>Accept</button>
-        <button className = "btn btn-danger" onClick={props.cancelAdd}>Cancel</button>
+        <button className = "btn btn-success" onClick={accept}>Đồng ý</button>
+        <button className = "btn btn-danger" onClick={props.cancelAdd}>Hủy</button>
       </div>
     </div>
   );
@@ -309,32 +310,32 @@ function EditView(props){
 
   return (
     <div className="jumbotron" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
-      <h3 style={{textAlign: 'center'}}>UPDATE PREMISE</h3>
+      <h3 style={{textAlign: 'center'}}>CẬP NHẬT CƠ SỞ</h3>
       <div style={{display: 'flex'}}>
         <div>
           <form className="form">
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
-              <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Name</div>
+              <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Tên</div>
               <input type="text" className="form-control form-input" value={props.old.name} disabled/>
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
-              <div className=" mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Area</div>
+              <div className=" mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Khu vực</div>
               <input type="text" className="form-control form-input" value={AreaService.idToArea(props.old.id_area)} disabled/>
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
-              <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Address</div>
+              <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Địa chỉ</div>
               <input type="text" className="form-control form-input"  value={props.old.address} disabled/>
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
-              <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Business</div>
+              <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Kinh doanh</div>
               <input type="text" className="form-control form-input" value={props.old.id_business_type} disabled/>
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
-              <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Certificate</div>
+              <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Chứng nhận</div>
               <input type="text" className="form-control form-input" value={props.old.id_certificate? props.old.id_certificate : "None"} disabled/>
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
-              <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Phone</div>
+              <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Điện thoại</div>
               <input type="text" className="form-control form-input" value={props.old.phone_number} disabled/>
             </div>
           </form>
@@ -361,7 +362,9 @@ function EditView(props){
               {note? <div className="tiny-alert" role="alert">{note.address}</div> : null}
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
-              <input type="text" className="form-control form-input" placeholder={props.old.id_business_type} value={business} onChange={(e) => setBusiness(e.target.value)}/>
+              <BusinessOption choose={(businessTypeId) => {
+                setBusiness(businessTypeId);
+              }}/>
               {note? <div className="tiny-alert" role="alert">{note.id_business_type}</div> : null}
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
@@ -376,8 +379,8 @@ function EditView(props){
         </div>
       </div>
       <div className="form-group my-form-group " style={{display: 'flex', justifyContent: 'space-around'}}>
-        <button className = "btn btn-success" onClick={save}>Save</button>
-        <button className = "btn btn-danger" onClick={props.cancelEdit}>Cancel</button>
+        <button className = "btn btn-success" onClick={save}>Lưu</button>
+        <button className = "btn btn-danger" onClick={props.cancelEdit}>Hủy</button>
       </div>
     </div>
   );

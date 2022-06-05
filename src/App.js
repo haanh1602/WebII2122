@@ -79,12 +79,12 @@ class App extends Component {
               <li className={"nav-item" + this.selectedNav("profile")}>
                 <Link to={"/profile"} className="nav-link"  onClick={() => this.setState({navSelected: "profile"})}>
                   {currentUser.first_name} {currentUser.last_name}
-                  <div style={{color: "yellow", fontSize: "12px"}}>{currentUser.is_manager? "Manager" : "Expert"}</div>
+                  <div style={{color: "yellow", fontSize: "12px"}}>{currentUser.is_manager? "Quản lý" : "Chuyên viên"}</div>
                 </Link>
               </li>
               <li className="nav-item">
                 <a href="/login" className="nav-link" onClick={this.logOut}>
-                  Log Out
+                  Đăng xuất
                 </a>
               </li>
             </div>
@@ -92,7 +92,7 @@ class App extends Component {
             <div className="navbar-nav ml-auto">
               <li className="nav-item">
                 <Link to={"/login"} className="nav-link">
-                  Login
+                  Đăng nhập
                 </Link>
               </li>
             </div>
@@ -104,7 +104,7 @@ class App extends Component {
             {currentUser && (
               <li className={"nav-item" + this.selectedNav("home")}>
                 <Link to={"/home"} className="nav-link" onClick={() => this.setState({navSelected: "home"})}>
-                  Home
+                  Trang chủ
                 </Link>
               </li> 
             )}   
@@ -112,7 +112,7 @@ class App extends Component {
             {currentUser && currentUser.is_manager &&(
               <li className={"nav-item" + this.selectedNav("user")}>
                 <Link to={"/user"} className="nav-link" onClick={() => this.setState({navSelected: "user"})}>
-                  User
+                  Quản lý tài khoản
                 </Link>
               </li>
             )}
@@ -120,7 +120,7 @@ class App extends Component {
             {currentUser && (
               <li className={"nav-item" + this.selectedNav("premises")}>
                 <Link to={"/premises"} className="nav-link" onClick={() => this.setState({navSelected: "premises"})}>
-                Premises
+                  Cơ sở
                 </Link>
               </li>
             )}
@@ -128,7 +128,7 @@ class App extends Component {
             {currentUser && (
               <li className={"nav-item" + this.selectedNav("inspection")}>
                 <Link to={"/inspection"} className="nav-link" onClick={() => this.setState({navSelected: "inspection"})}>
-                Inspection
+                Kế hoạch thanh tra
                 </Link>
               </li>
             )}
@@ -136,7 +136,7 @@ class App extends Component {
             {currentUser && currentUser.is_manager &&(
               <li className={"nav-item" + this.selectedNav("certificate")}>
                 <Link to={"/certificate"} className="nav-link" onClick={() => this.setState({navSelected: "certificate"})}>
-                Certificate
+                Chứng nhận
                 </Link>
               </li>
             )}
@@ -144,7 +144,7 @@ class App extends Component {
             {currentUser && (
               <li className={"nav-item" + this.selectedNav("sample")}>
                 <Link to={"/sample"} className="nav-link" onClick={() => this.setState({navSelected: "sample"})}>
-                Sample
+                Mẫu thanh tra
                 </Link>
               </li>
             )}
