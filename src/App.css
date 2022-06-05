@@ -229,3 +229,9 @@ a {
   justify-content: center;
   align-items: center;
 }
+
+.my-btn-action{
+  width: 35px;
+  margin-bottom: 2px;
+  border-radius: 40px !important;
+}

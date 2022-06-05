@@ -7,11 +7,14 @@ import { Switch, Route } from "react-router-dom";
 import PremisesService from "../services/premises.service";
 import EventBus from "../common/EventBus";
 import AuthService from "../services/auth.service";
+import AreaService from "../services/area.service";
+
+import {QuanOption, PhuongOption} from "./area-option.component";
 
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
-var tableHeader = ["ID", "Name", "Area", "Address", "Business", "Certificate", "Phone"];
+var tableHeader = ["Name", "Area", "Address", "Business", "Certificate", "Phone"];
 
 export default class Premises extends Component {
   constructor(props) {
@@ -56,6 +59,8 @@ export default class Premises extends Component {
         // }
       }
     );
+    console.log(AreaService.idToQuan(1100));
+    console.log(AreaService.idToPhuong(1008));
   }
 
   handleClickDelete = (id) => {
@@ -88,20 +93,20 @@ export default class Premises extends Component {
     return PremisesService.auth().displayAction? (
       <td>
         <button
-              className="btn btn-warning" style={{padding: '5px', borderRadius: '3px'}}
+              className="btn btn-warning my-btn-action" style={{padding: '5px'}}
               onClick={() => {
                 this.setState({edittingPremise: premise});
                 this.setState({showEdit: true});
               }}
             >
-              <span className="fa fa-pencil"></span> Edit
+              <span className="fa fa-pencil"></span> {/* Button edit */}
             </button>
             &nbsp;
             <button
-              className="btn btn-danger" style={{padding: '5px', borderRadius: '3px'}}
+              className="btn btn-danger my-btn-action" style={{padding: '5px'}}
               onClick={() => this.remove(premise)}
             >
-              <span className="fa fa-trash"></span> Delete
+              <span className="fa fa-trash"></span>
             </button>
       </td>
     ) : null;
@@ -122,9 +127,8 @@ export default class Premises extends Component {
                 this.state.data.map((premise, index) => {
                   const {address, id, id_area, id_business_type, id_certificate, name, phone_number} = premise;
                   return <tr key = {id}>
-                    <td>{id}</td>
                     <td>{name}</td>
-                    <td>{id_area}</td>
+                    <td>{AreaService.idToArea(id_area)}</td>
                     <td>{address}</td>
                     <td>{id_business_type}</td>
                     <td>{id_certificate? id_certificate : "None"}</td>
@@ -159,14 +163,14 @@ export default class Premises extends Component {
   addView = () => {
     console.log("Add view")
     return (
-      <AddView cancelAdd={() => this.setState({showAdd: false})}/>
+      <AddView cancelAdd={() => {this.setState({showAdd: false}); this.componentDidMount()}}/>
     )
   }
 
   editView = () => {
     console.log(this.state.edittingPremise);
     return (
-      <EditView old = {this.state.edittingPremise} cancelEdit={() => this.setState({showEdit: false})} />
+      <EditView old = {this.state.edittingPremise} cancelEdit={() => {this.setState({showEdit: false}); this.componentDidMount();}} />
     )
   }
 
@@ -176,6 +180,7 @@ export default class Premises extends Component {
         {this.state.showAdd? this.addView() : null}
         {this.state.showEdit? this.editView() : null}
         {!(this.state.showAdd || this.state.showEdit)? this.mainView() : null}
+        {/* <PhuongOption areaId="1023"/> */}
       </div>
     );
   }
@@ -190,13 +195,15 @@ function AddView(props){
   const [phone, setPhone] = useState('');
   const [adding, setAdding] = useState(false);
   const [note, setNote] = useState(undefined);
+  const [phuong, setPhuong] = useState('');
+  const [quan, setQuan] = useState('');
 
   const accept = () => {
     const premise = {
       name: name,
       address: address,
       phone_number: phone,
-      id_area: parseInt(area),
+      id_area: parseInt(quan) * 100000 + parseInt(phuong),
       id_business_type: parseInt(business),
       id_certificate: parseInt(certificate),
     }
@@ -206,7 +213,7 @@ function AddView(props){
       console.log(res);
       setAdding(false);
       props.cancelAdd();
-      window.location.reload();
+      //window.location.reload();
     }).catch((err) => {
       console.log(err);
       setNote(err.response.data);
@@ -226,7 +233,11 @@ function AddView(props){
         </div>
         <div className="form-group my-form-group form flex-row sp-between input-div div-center">
           <div className=" mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Area</div>
-          <input type="text" className="form-control form-input" placeholder="Area" value={area} onChange={(e) => setArea(e.target.value)}/>
+          <QuanOption choose={(quanId) => {
+                  setQuan(quanId);
+                  console.log(quanId);
+                }}/>
+          <PhuongOption areaId = {quan} choose={(phuongId) => {setPhuong(phuongId); console.log(phuongId);}}/>
           {note? <div className="tiny-alert" role="alert">{note.id_area}</div> : null}
         </div>
         <div className="form-group my-form-group form flex-row sp-between input-div div-center">
@@ -267,22 +278,27 @@ function EditView(props){
   const [phone, setPhone] = useState('');
   const [editting, setEditting] = useState(false);
   const [note, setNote] = useState(undefined);
+  const [quan, setQuan] = useState('');
+  const [phuong, setPhuong] = useState('');
 
   const save = () => {
     const premise = {
-      id: props.old.id,
-      name: name,
-      address: address,
-      phone_number: phone,
-      id_area: parseInt(area),
-      id_business_type: parseInt(business),
+      name: name? name : props.old.name,
+      address: address? address : props.old.address,
+      phone_number: phone? phone : props.old.phone_number,
+      id_area: (quan && phuong)? AreaService.areaId(quan, phuong) : parseInt(props.old.id_area),
+      id_business_type: business? parseInt(business) : parseInt(props.old.id_business_type),
       id_certificate: parseInt(certificate),
     }
     console.log(premise);
     setEditting(true);
-    PremisesService.updatePremise(premise).then((res) => {
-      console.log(res);
+    PremisesService.deletePremise(props.old.id).then((res) => {
       setEditting(false);
+      if (!editting) {
+        PremisesService.createPremise(premise).then((res) => {
+          props.cancelEdit();
+        })
+      }
     }).catch((err) => {
       console.log(err);
       setNote(err.response.data);
@@ -303,7 +319,7 @@ function EditView(props){
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
               <div className=" mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Area</div>
-              <input type="text" className="form-control form-input" value={props.old.id_area} disabled/>
+              <input type="text" className="form-control form-input" value={AreaService.idToArea(props.old.id_area)} disabled/>
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
               <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Address</div>
@@ -329,27 +345,31 @@ function EditView(props){
         <div>
           <form className="form">
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
-              <input type="text" className="form-control form-input" placeholder="Premise name" value={name} onChange={(e) => setName(e.target.value)}/>
+              <input type="text" className="form-control form-input" placeholder={props.old.name} value={name} onChange={(e) => setName(e.target.value)}/>
               {note? <div className="tiny-alert" role="alert">{note.name}</div> : null}
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
-              <input type="text" className="form-control form-input" placeholder="Area" value={area} onChange={(e) => setArea(e.target.value)}/>
+                <QuanOption choose={(quanId) => {
+                  setQuan(quanId);
+                  console.log(quanId);
+                }}/>
+                <PhuongOption areaId = {quan} choose={(phuongId) => {setPhuong(phuongId); console.log(phuongId);}}/>
               {note? <div className="tiny-alert" role="alert">{note.id_area}</div> : null}
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
-              <input type="text" className="form-control form-input" placeholder="Address" value={address} onChange={(e) => setAddress(e.target.value)}/>
+              <input type="text" className="form-control form-input" placeholder={props.old.address} value={address} onChange={(e) => setAddress(e.target.value)}/>
               {note? <div className="tiny-alert" role="alert">{note.address}</div> : null}
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
-              <input type="text" className="form-control form-input" placeholder="Business" value={business} onChange={(e) => setBusiness(e.target.value)}/>
+              <input type="text" className="form-control form-input" placeholder={props.old.id_business_type} value={business} onChange={(e) => setBusiness(e.target.value)}/>
               {note? <div className="tiny-alert" role="alert">{note.id_business_type}</div> : null}
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
-              <input type="text" className="form-control form-input" placeholder="Certificate" value={certificate} onChange={(e) => setCertificate(e.target.value)}/>
+              <input type="text" className="form-control form-input" placeholder={props.old.certificate} value={certificate} onChange={(e) => setCertificate(e.target.value)}/>
               {note? <div className="tiny-alert" role="alert">{note.certificate}</div> : null}
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
-              <input type="text" className="form-control form-input" placeholder="Phone" value={phone} onChange={(e) => setPhone(e.target.value)}/>
+              <input type="text" className="form-control form-input" placeholder={props.old.phone_number} value={phone} onChange={(e) => setPhone(e.target.value)}/>
               {note? <div className="tiny-alert" role="alert">{note.phone_number}</div> : null}
             </div>
           </form>

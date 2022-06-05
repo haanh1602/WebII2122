@@ -14,6 +14,10 @@ export default class BoardUser extends Component {
     };
   }
 
+  componentWillMount() {
+    if (!AuthService.getCurrentUser())  window.location.href = "/login";
+  }
+
   componentDidMount() {
     UserService.getUserBoard().then(
       response => {
