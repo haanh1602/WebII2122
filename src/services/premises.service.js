@@ -20,7 +20,8 @@ class PremisesService {
     }
 
     updatePremise(data) {
-        return axios.patch(API_URL + 'premises/', data, { headers: authHeader() });
+        console.log(data);
+        return axios.put(API_URL + 'premises/' + data.id + "/", data, { headers: authHeader() });
     }
 
     deletePremise(premiseId) {

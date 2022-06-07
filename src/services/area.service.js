@@ -80,6 +80,9 @@ class AreaService {
     }
 
     idToArea(areaId) {
+        if (!this.idToPhuong(areaId) || !this.idToQuan(areaId)) {
+            return "";
+        }
         return this.idToPhuong(areaId).name_with_type + ", " + this.idToQuan(areaId).name_with_type;
     }
 

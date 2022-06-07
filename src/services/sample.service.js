@@ -15,11 +15,12 @@ class SampleService {
     }
 
     createSample(data) {
-        return axios.post(API_URL + 'sample/', data + "/", { headers: authHeader() });
+        console.log(data);
+        return axios.post(API_URL + 'sample/', data, { headers: authHeader() });
     }
 
-    updateSample(data) {
-        return axios.patch(API_URL + 'sample/', data + "/", { headers: authHeader() });
+    updateSample(data, id) {
+        return axios.patch(API_URL + 'sample/' + id + '/', data, { headers: authHeader() });
     }
 
     deleteSample(sampleId) {

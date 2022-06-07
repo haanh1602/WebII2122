@@ -17,7 +17,7 @@ export default class Home extends Component {
   }
 
   componentDidMount() {
-    UserService.getUserBoard().then(
+    UserService.getUsers().then(
       response => {
         this.setState({
           content: response.data.detail

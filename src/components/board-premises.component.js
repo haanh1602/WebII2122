@@ -9,6 +9,9 @@ import EventBus from "../common/EventBus";
 import AuthService from "../services/auth.service";
 import AreaService from "../services/area.service";
 import BusinessService from "../services/business.service";
+import InspectionService from "../services/inspection.service";
+import CertificateService from "../services/certificate.service";
+import MyDatePicker from "./date-picker.component";
 
 import {QuanOption, PhuongOption} from "./area-option.component";
 import BusinessOption from "./business-type-option.component";
@@ -16,7 +19,7 @@ import BusinessOption from "./business-type-option.component";
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
-var tableHeader = ["Tên", "Khu vực", "Địa chỉ", "Kinh doanh", "Chứng nhận", "Điện thoại"];
+var tableHeader = ["Tên cơ sở", "Địa chỉ", "Khu vực", "Kinh doanh", "Chứng nhận", "Điện thoại"];
 
 export default class Premises extends Component {
   constructor(props) {
@@ -24,8 +27,12 @@ export default class Premises extends Component {
 
     this.state = {
       data: [],
+      inspections: [],
+      certificates: [],
       showAdd: false,
       showEdit: false,
+      showPremise: false,
+      selectPremise: undefined,
       edittingPremise: undefined,
     };
   }
@@ -42,7 +49,11 @@ export default class Premises extends Component {
           content: response.statusText
         });
         this.setState({
-          data: response.data
+          data: response.data.filter((p) => 
+            AuthService.getCurrentUser().is_manager? 
+            parseInt(AuthService.getCurrentUser().id_area / 100000) == parseInt(p.id_area / 100000) :
+            parseInt(AuthService.getCurrentUser().id_area % 100000) == parseInt(p.id_area % 100000)
+          )
         });
         console.log(response.data);
       },
@@ -55,12 +66,22 @@ export default class Premises extends Component {
             error.message ||
             error.toString()
         });
-
+        if (error.response.status == 401) {
+          AuthService.logout();
+          window.location.href = "/login";
+          return;
+        }
         // if (error.response && error.response.status === 401) {
         //   EventBus.dispatch("logout");
         // }
       }
     );
+    InspectionService.getInspections().then((res) => {
+      this.setState({inspections: res.data});
+    });
+    CertificateService.getCertificates().then((res) => {
+      this.setState({certificate: res.data});
+    })
   }
 
   handleClickDelete = (id) => {
@@ -82,7 +103,6 @@ export default class Premises extends Component {
               <button className = "btn btn-primary" onClick={() => {this.handleClickDelete(premise.id); onClose();}}>Có</button>
               <button className = "btn btn-danger" onClick={onClose}>Không</button>
             </div>
-            
           </div>
         );
       }
@@ -93,21 +113,23 @@ export default class Premises extends Component {
     return PremisesService.auth().displayAction? (
       <td>
         <button
-              className="btn btn-warning my-btn-action" style={{padding: '5px'}}
-              onClick={() => {
-                this.setState({edittingPremise: premise});
-                this.setState({showEdit: true});
-              }}
-            >
-              <span className="fa fa-pencil"></span> {/* Button edit */}
-            </button>
-            &nbsp;
-            <button
-              className="btn btn-danger my-btn-action" style={{padding: '5px'}}
-              onClick={() => this.remove(premise)}
-            >
-              <span className="fa fa-trash"></span>
-            </button>
+          className="btn btn-warning my-btn-action" style={{padding: '5px'}}
+          onClick={() => {
+            this.setState({showPremise: false});
+            this.setState({edittingPremise: premise});
+            this.setState({showEdit: true});
+          }}
+        >
+          <span className="fa fa-pencil"></span> {/* Button edit */}
+        </button>
+        &nbsp;
+        <button
+          className="btn btn-danger my-btn-action" style={{padding: '5px'}}
+          onClick={() => {this.setState({showPremise: false});this.remove(premise)}}
+        >
+          <span className="fa fa-trash"></span>
+        </button>
+        
       </td>
     ) : null;
   }
@@ -125,14 +147,15 @@ export default class Premises extends Component {
             <tbody>
               {
                 this.state.data.map((premise, index) => {
-                  const {address, id, id_area, id_business_type, id_certificate, name, phone_number} = premise;
-                  return <tr key = {id}>
-                    <td>{name}</td>
-                    <td>{AreaService.idToArea(id_area)}</td>
-                    <td>{address}</td>
-                    <td>{BusinessService.getBusiness(id_business_type)}</td>
-                    <td>{id_certificate? id_certificate : "Không có"}</td>
-                    <td>{phone_number}</td>
+                  premise.phone_number = (premise.phone_number.toString().charAt(0) == '0')? premise.phone_number : "0" + premise.phone_number;
+                  var {address, id, id_area, id_business_type, id_certificate, name, phone_number} = premise;
+                  return <tr key = {id} className="my-tr">
+                    <td onClick={() => {this.setState({selectPremise: premise}); this.setState({showPremise: true})}}>{name}</td>
+                    <td onClick={() => {this.setState({selectPremise: premise}); this.setState({showPremise: true})}}>{address}</td>
+                    <td onClick={() => {this.setState({selectPremise: premise}); this.setState({showPremise: true})}}>{AreaService.idToPhuong(id_area).name_with_type}</td>
+                    <td onClick={() => {this.setState({selectPremise: premise}); this.setState({showPremise: true})}}>{BusinessService.getBusiness(id_business_type)}</td>
+                    <td onClick={() => {this.setState({selectPremise: premise}); this.setState({showPremise: true})}}>{id_certificate? id_certificate : "Không có"}</td>
+                    <td onClick={() => {this.setState({selectPremise: premise}); this.setState({showPremise: true})}}>{phone_number}</td>
                     {this.actions(premise)}
                   </tr>
                 })
@@ -144,10 +167,15 @@ export default class Premises extends Component {
       );
   }
 
+  getPremisesHasCert() {
+
+  }
+
   mainView = () => {
     console.log(this.state.data);
     return (
       <>
+      <h3 style={{textAlign: 'center'}}>QUẢN LÝ CƠ SỞ</h3>
       {(this.state.data && this.state.data.length > 0)? this.renderContent() : 
         <div className="jumbotron">
           <div>Không có cơ sở nào!</div>
@@ -163,7 +191,7 @@ export default class Premises extends Component {
   addView = () => {
     console.log("Add view")
     return (
-      <AddView cancelAdd={() => {this.setState({showAdd: false}); this.componentDidMount()}}/>
+      <AddView quan={AuthService.getCurrentUser().id_area / 100000} cancelAdd={() => {this.setState({showAdd: false}); this.componentDidMount()}}/>
     )
   }
 
@@ -174,12 +202,19 @@ export default class Premises extends Component {
     )
   }
 
+  infoView = () => {
+    return (
+      <InfoView old = {this.state.selectPremise} inspections = {this.state.inspections} back={() => {this.setState({showPremise: false}); this.componentDidMount();}} />
+    )
+  }
+
   render() {
     return (
       <div className="container">
         {this.state.showAdd? this.addView() : null}
         {this.state.showEdit? this.editView() : null}
-        {!(this.state.showAdd || this.state.showEdit)? this.mainView() : null}
+        {this.state.showPremise? this.infoView() : null}
+        {!(this.state.showAdd || this.state.showEdit || this.state.showPremise)? this.mainView() : null}
         {/* <PhuongOption areaId="1023"/> */}
       </div>
     );
@@ -203,7 +238,7 @@ function AddView(props){
       name: name,
       address: address,
       phone_number: phone,
-      id_area: parseInt(quan) * 100000 + parseInt(phuong),
+      id_area: parseInt(props.quan) * 100000 + parseInt(phuong),
       id_business_type: parseInt(business),
       id_certificate: parseInt(certificate),
     }
@@ -233,10 +268,7 @@ function AddView(props){
         </div>
         <div className="form-group my-form-group form flex-row sp-between input-div div-center">
           <div className=" mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Khu vực</div>
-          <QuanOption choose={(quanId) => {
-                  setQuan(quanId);
-                }}/>
-          <PhuongOption areaId = {quan} choose={(phuongId) => {setPhuong(phuongId); console.log(phuongId);}}/>
+          <PhuongOption areaId = {props.quan} choose={(phuongId) => {setPhuong(phuongId); console.log(phuongId);}}/>
           {note? <div className="tiny-alert" role="alert">{note.id_area}</div> : null}
         </div>
         <div className="form-group my-form-group form flex-row sp-between input-div div-center">
@@ -272,40 +304,48 @@ function AddView(props){
 
 function EditView(props){
   const [name, setName] = useState('');
-  const [area, setArea] = useState('');
   const [address, setAddress] = useState('');
   const [business, setBusiness] = useState('');
   const [certificate, setCertificate] = useState('');
   const [phone, setPhone] = useState('');
   const [editting, setEditting] = useState(false);
   const [note, setNote] = useState(undefined);
-  const [quan, setQuan] = useState('');
   const [phuong, setPhuong] = useState('');
 
   const save = () => {
     const premise = {
+      id: props.old.id,
       name: name? name : props.old.name,
+      id_area: phuong? (parseInt(props.old.id_area / 100000)*100000 + parseInt(phuong)) : props.old.id_area,
       address: address? address : props.old.address,
-      phone_number: phone? phone : props.old.phone_number,
-      id_area: (quan && phuong)? AreaService.areaId(quan, phuong) : parseInt(props.old.id_area),
       id_business_type: business? parseInt(business) : parseInt(props.old.id_business_type),
-      id_certificate: parseInt(certificate),
+      id_certificate: certificate? parseInt(certificate) : parseInt(props.old.id_certificate),
+      phone_number: phone? phone : props.old.phone_number,
     }
-    console.log(premise);
-    setEditting(true);
-    PremisesService.deletePremise(props.old.id).then((res) => {
+    console.log(props.old.id_area + ", " + phuong);
+    PremisesService.updatePremise(premise).then((res) => {
       setEditting(false);
-      if (!editting) {
-        PremisesService.createPremise(premise).then((res) => {
-          props.cancelEdit();
-        })
-      }
+      props.cancelEdit();
     }).catch((err) => {
       console.log(err);
-      setNote(err.response.data);
-      console.log(err.response.data);
-      setEditting(false);
     })
+    // console.log(premise);
+    // setEditting(true);
+    // PremisesService.deletePremise(props.old.id).then((res) => {
+    //   setEditting(false);
+    //   if (!editting) {
+    //     PremisesService.createPremise(premise).then((res) => {
+    //       console.log(premise);
+    //       console.log(res);
+    //       props.cancelEdit();
+    //     })
+    //   }
+    // }).catch((err) => {
+    //   console.log(err);
+    //   setNote(err.response.data);
+    //   console.log(err.response.data);
+    //   setEditting(false);
+    // })
   }
 
   return (
@@ -328,7 +368,7 @@ function EditView(props){
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
               <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Kinh doanh</div>
-              <input type="text" className="form-control form-input" value={props.old.id_business_type} disabled/>
+              <input type="text" className="form-control form-input" value={BusinessService.getBusiness(props.old.id_business_type)} disabled/>
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
               <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Chứng nhận</div>
@@ -350,11 +390,7 @@ function EditView(props){
               {note? <div className="tiny-alert" role="alert">{note.name}</div> : null}
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
-                <QuanOption choose={(quanId) => {
-                  setQuan(quanId);
-                  console.log(quanId);
-                }}/>
-                <PhuongOption areaId = {quan} choose={(phuongId) => {setPhuong(phuongId); console.log(phuongId);}}/>
+                <PhuongOption areaId = {props.old.id_area / 100000} choose={(phuongId) => {setPhuong(phuongId); console.log(phuongId);}}/>
               {note? <div className="tiny-alert" role="alert">{note.id_area}</div> : null}
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
@@ -368,7 +404,7 @@ function EditView(props){
               {note? <div className="tiny-alert" role="alert">{note.id_business_type}</div> : null}
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
-              <input type="text" className="form-control form-input" placeholder={props.old.certificate} value={certificate} onChange={(e) => setCertificate(e.target.value)}/>
+              <input type="text" className="form-control form-input" placeholder={props.old.id_certificate} value={certificate} onChange={(e) => setCertificate(e.target.value)}/>
               {note? <div className="tiny-alert" role="alert">{note.certificate}</div> : null}
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
@@ -384,5 +420,57 @@ function EditView(props){
       </div>
     </div>
   );
+}
+
+function InfoView(props) {
+  const [showLich, setShowLich] = useState(false);
+  const [inspection_date, setInpection_date] = useState(new Date());
+
+  const createInspection = () => {
+    console.log("???");
+    const newInspection = {
+      inspection_date: inspection_date,
+      id_premise: props.old.id
+    };
+    InspectionService.createInspection(newInspection).then((res) => {
+      console.log(res);
+      props.back();
+    })
+  }
+
+  return (
+    <div className="jumbotron" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
+      <h3 style={{textAlign: 'center'}}>Cơ sở <strong>{props.old.name}</strong></h3>
+      <div style={{display: 'flex', flexDirection: 'column'}}>
+        <div style={{flexDirection: 'row'}}>
+          <strong>Địa chỉ: </strong>{props.old.address}, {AreaService.idToArea(props.old.id_area)}
+        </div>
+        <div style={{flexDirection: 'row'}}><strong>Số điện thoại: </strong>{props.old.phone_number}</div>
+        <div style={{flexDirection: 'row'}}><strong>Loại hình kinh doanh: </strong>{BusinessService.getBusiness(props.old.id_business_type)}</div>
+        <div style={{flexDirection: 'row'}}><strong>Chứng nhận: </strong> {props.old.id_certificate? props.old.id_certificate : "Không có"}</div>
+        <div style={{flexDirection: 'row'}}><strong>Thanh tra lần cuối: </strong> </div>
+        <div style={{flexDirection: 'row'}}><strong>Thanh tra: </strong> 
+          {props.inspections.find((i) => i.id_premise == props.old.id)? 
+          props.inspections.find((i) => i.id_premise == props.old.id).inspection_date + " <Đã có lịch> " : "Không có lịch thanh tra!"}
+        </div>
+        {!props.inspections.find((i) => i.id_premise == props.old.id) && !showLich && (
+          <button className="btn btn-warning" onClick={() => setShowLich(true)}>Tạo lịch thanh tra</button>
+        )}
+        {showLich && (<div>
+          <div style={{display: 'flex', marginTop: '10px', marginBottom: '10px'}}>
+            <strong>Ngày thanh tra: </strong><MyDatePicker style={{width: '100px !important'}} onChange={(date) => setInpection_date((date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate()))}/>
+          </div>
+          <div style={{display: 'flex', justifyContent: 'space-around'}}>
+            <button className = "btn btn-success" onClick={createInspection}>Tạo</button>
+            <button className = "btn btn-danger" onClick={() => setShowLich(false)}>Hủy</button>
+          </div>
+          
+        </div>)}
+      </div>
+      <div className="form-group my-form-group " style={{display: 'flex', justifyContent: 'space-around', marginTop: '30px'}}>
+        <button className = "btn btn-primary" onClick={props.back}>Quay lại</button>
+      </div>
+    </div>
+  )
 }
 

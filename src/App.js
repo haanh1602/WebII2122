@@ -5,6 +5,7 @@ import "./App.css";
 
 import AuthService from "./services/auth.service";
 import UserService from "./services/user.service";
+import AreaService from "./services/area.service";
 import config from "./config.json";
 
 import Login from "./components/login.component";
@@ -16,6 +17,8 @@ import Premises from "./components/board-premises.component";
 import Inspection from "./components/board-inspection.component";
 import Certificate from "./components/board-certificate.component";
 import Sample from "./components/board-sample.component";
+
+import MyDatePicker from "./components/date-picker.component";
 
 // import AuthVerify from "./common/auth-verify";
 import EventBus from "./common/EventBus";
@@ -29,7 +32,8 @@ class App extends Component {
       showModeratorBoard: false,
       showAdminBoard: false,
       currentUser: undefined,
-      navSelected: ""
+      navSelected: "",
+      startDate: new Date()
     };
   }
 
@@ -76,10 +80,15 @@ class App extends Component {
           </div>
           {currentUser ? (
             <div className="navbar-nav ml-auto">
+              {AreaService.idToArea(currentUser.id_area) && (<div className="nav-item" style={{padding: '8px', color: 'yellow', marginRight: '30px'}}>
+                <div style={{color: 'white'}}>Khu vực quản lý</div>
+                {currentUser.is_manager? AreaService.idToQuan(currentUser.id_area).name_with_type : AreaService.idToPhuong(currentUser.id_area).name_with_type}
+              </div>)
+              }
               <li className={"nav-item" + this.selectedNav("profile")}>
                 <Link to={"/profile"} className="nav-link"  onClick={() => this.setState({navSelected: "profile"})}>
                   {currentUser.first_name} {currentUser.last_name}
-                  <div style={{color: "yellow", fontSize: "12px"}}>{currentUser.is_manager? "Quản lý" : "Chuyên viên"}</div>
+                  <div style={{color: "yellow"}}>{currentUser.is_manager? "Quản lý" : "Chuyên viên"}</div>
                 </Link>
               </li>
               <li className="nav-item">
@@ -166,8 +175,6 @@ class App extends Component {
             <Route path="/" component={Home} />
           </Switch>
         </div>
-
-        { /*<AuthVerify logOut={this.logOut}/> */ }
       </div>
     );
   }

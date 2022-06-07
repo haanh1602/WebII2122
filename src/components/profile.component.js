@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import AuthService from "../services/auth.service";
 import UserService from "../services/user.service";
+import AreaService from "../services/area.service";
 
 export default class Profile extends Component {
   constructor(props) {
@@ -14,8 +15,6 @@ export default class Profile extends Component {
       currenUserInfo: {}
     };
   }
-
-
 
   componentDidMount() {
     const currentUser = AuthService.getCurrentUser();
@@ -41,11 +40,11 @@ export default class Profile extends Component {
         <div>
         <header className="jumbotron">
           <h3>
-            <strong>{currentUserInfo.first_name} {currentUserInfo.last_name}</strong> Profile
+            Thông tin <strong>{currentUserInfo.first_name} {currentUserInfo.last_name}</strong>
           </h3>
         </header>
         <p>
-          <strong>Username:</strong>{" "}
+          <strong>Tài khoản:</strong>{" "}
           {currentUserInfo.username}
         </p>
         <p>
@@ -53,12 +52,12 @@ export default class Profile extends Component {
           {currentUserInfo.email}
         </p>
         <p>
-        <strong>Position:</strong>
-          {currentUserInfo.is_manager? " Manager" : " Expert"}
+        <strong>Vị trí:</strong>
+          {currentUserInfo.is_manager? " Quản lý" : " Chuyên viên"}
         </p>
         <p>
-        <strong>Area:</strong>{" "}
-          {currentUserInfo.id_area}
+        <strong>Khu vực:</strong>{" "}
+          {currentUser.is_manager? AreaService.idToQuan(currentUser.id_area).name_with_type : AreaService.idToPhuong(currentUser.id_area).name_with_type}
         </p>
       </div>: null}
       </div>
