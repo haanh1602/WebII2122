@@ -13,6 +13,7 @@ import AreaService from "../services/area.service";
 import BusinessService from "../services/business.service";
 import SampleService from "../services/sample.service";
 import MyDatePicker from "./date-picker.component";
+import CertificateService from "../services/certificate.service";
 
 import {QuanOption, PhuongOption} from "./area-option.component";
 import BusinessOption from "./business-type-option.component";
@@ -20,7 +21,7 @@ import BusinessOption from "./business-type-option.component";
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
-var tableHeader = ["Cơ sở", "Địa chỉ", "Ngày thanh tra", "Cần lấy mẫu", "ID mẫu", "Trạng thái mẫu", "Trạng thái"];
+var tableHeader = ["Cơ sở", "Ngày thanh tra", "Cần lấy mẫu", "ID mẫu", "Trạng thái mẫu", "Vi phạm", "Trạng thái"];
 
 export default class Inspection extends Component {
   constructor(props) {
@@ -33,8 +34,11 @@ export default class Inspection extends Component {
       edittingObj: undefined,
       premises: undefined,
       samples: undefined,
+      inspection: undefined,
       edittingPremise: undefined,
       edittingSample: undefined,
+      showAddCert: false,
+      certificates: [],
     };
   }
 
@@ -44,6 +48,10 @@ export default class Inspection extends Component {
   }
 
   componentDidMount() {
+    CertificateService.getCertificates().then((res) => {
+      console.log(res.data);
+      this.setState({certificates: res.data});
+    })
     PremisesService.getPremises().then((res) => {
       if (AuthService.getCurrentUser().is_manager) {this.setState({premises: res.data.filter((u) => parseInt(u.id_area / 100000) == parseInt(AuthService.getCurrentUser().id_area / 100000))});}
       else {this.setState({premises: res.data.filter((u) => parseInt(u.id_area % 100000) == parseInt(AuthService.getCurrentUser().id_area % 100000))})}
@@ -51,7 +59,7 @@ export default class Inspection extends Component {
         this.setState({content: res.statusText});
         this.setState({data: res.data.filter((u) => this.state.premises.find((p) => p.id == u.id_premise))});
         SampleService.getSamples().then((res) => {
-          this.setState({sample: res.data.filter((s) => this.state.premises.find((p) => p.id == s.id_premise))});
+          this.setState({samples: res.data.filter((s) => this.state.premises.find((p) => p.id == s.id_premise))});
         })
       })
     }).catch((err) => {
@@ -116,6 +124,30 @@ export default class Inspection extends Component {
     ) : null;
   }
 
+  thuhoi = (_cert,  _premise, _inspection) => {
+    console.log(this.state.certificates);
+    console.log(_cert);
+    console.log(_premise);
+    console.log(_inspection);
+    var cert = _cert;
+    cert.status = "thuhoi";
+    CertificateService.updateCertificate(cert, cert.id).then((res) => {
+      var inspection = _inspection;
+      var premise = _premise;
+      inspection.status = "khongdatchuan";
+      premise.id_certificate = null;
+      InspectionService.updateInspection(inspection, inspection.id).then((res) => {
+        PremisesService.updatePremise(premise, premise.id).then((res) => {
+          this.componentDidMount();
+        })
+      })
+      //window.location.reload();
+    }).catch((err) => {
+      console.log(err);
+      console.log(err.response.data);
+    })
+  }
+
   renderContent() {
     return (
       <div className="container">
@@ -130,16 +162,67 @@ export default class Inspection extends Component {
             {
               this.state.data.map((obj, index) => {
                 const {id, inspection_date, sample_needed, violate, id_premise, id_sample, status} = obj;
+                console.log(obj);
                 const premise = this.state.premises.find(p => p.id == id_premise);
                 const sample = this.state.samples? this.state.samples.find(s => s.id == id_sample) : undefined;
-                return <tr key = {id} className="my-tr">
-                  <td>{premise.name}</td>
-                  <td>{premise.address + ", " + AreaService.idToPhuong(premise.id_area).name_with_type}</td>
-                  <td>{inspection_date}</td>
-                  <td>{sample_needed? "Có" : "Không"}</td>
-                  <td>{id_sample}</td>
-                  <td>{status}</td>
-                  <td>{status=="Đã kiểm tra"? violate? "Đạt chuẩn" : "Không đạt" : status}</td>
+                console.log(sample);
+                const canEdit = !(status=="datchuan" || status=="khongdatchuan");
+                return <tr key = {id} className={"my-tr" + (!canEdit? " disable" : "")}>
+                  <td onClick={() => {
+                    if (!canEdit) return;
+            this.setState({edittingSample: sample});
+            this.setState({edittingPremise: premise});
+            this.setState({edittingObj: obj});
+            this.setState({showEdit: true});
+          }}>{premise.name}</td>
+                  <td onClick={() => {
+                    if (!canEdit) return;
+            this.setState({edittingSample: sample});
+            this.setState({edittingPremise: premise});
+            this.setState({edittingObj: obj});
+            this.setState({showEdit: true});
+          }}>{inspection_date}</td>
+                  <td onClick={() => {
+                    if (!canEdit) return;
+            this.setState({edittingSample: sample});
+            this.setState({edittingPremise: premise});
+            this.setState({edittingObj: obj});
+            this.setState({showEdit: true});
+          }}>{sample_needed? "Có" : "Không"}</td>
+                  <td onClick={() => {
+                    if (!canEdit) return;
+            this.setState({edittingSample: sample});
+            this.setState({edittingPremise: premise});
+            this.setState({edittingObj: obj});
+            this.setState({showEdit: true});
+          }}>{id_sample}</td>
+                  <td onClick={() => {
+                    if (!canEdit) return;
+            this.setState({edittingSample: sample});
+            this.setState({edittingPremise: premise});
+            this.setState({edittingObj: obj});
+            this.setState({showEdit: true});
+          }}>{sample? InspectionService.idToName(sample.accreditation_status) : null}</td>
+                  <td onClick={() => {
+                    if (!canEdit) return;
+            this.setState({edittingSample: sample});
+            this.setState({edittingPremise: premise});
+            this.setState({edittingObj: obj});
+            this.setState({showEdit: true});
+          }}>{violate? "Có" : "Không"}</td>
+                  {AuthService.getCurrentUser().is_manager && status=="capgiay" && (
+                    <td><button className="btn btn-success" onClick={()=>{
+                      this.setState({premise: premise});
+                      this.setState({inspection: obj});
+                      this.setState({showAddCert: true});
+                    }}>{InspectionService.idToName(status)}</button></td>
+                  )}
+                  {AuthService.getCurrentUser().is_manager && status=="thuhoi" && (
+                    <td><button className="btn btn-danger" onClick={() => this.thuhoi(this.state.certificates.find((c) => c.id == premise.id_certificate), premise, obj)}>{InspectionService.idToName(status)}</button></td>
+                  )}
+                  {(!AuthService.getCurrentUser().is_manager || (AuthService.getCurrentUser().is_manager && (status != "capgiay" && status != "thuhoi"))) && (
+                    <td>{status? InspectionService.idToName(status) : "Đang xử lý"}</td>
+                  )}
                   {this.actions(obj, premise, sample)}
                 </tr>
               })
@@ -178,12 +261,19 @@ export default class Inspection extends Component {
     )
   }
 
+  addCertView = () => {
+    return (
+      <AddCertView inspection={this.state.inspection} premise={this.state.premise} cancelAdd={() => {this.setState({showAddCert: false}); this.componentDidMount()}} />
+    );
+  }
+
   render() {
     return (
       <div className="container">
         {this.state.showAdd? this.addView() : null}
         {this.state.showEdit? this.editView() : null}
-        {!(this.state.showAdd || this.state.showEdit)? this.mainView() : null}
+        {this.state.showAddCert? this.addCertView() : null}
+        {!(this.state.showAdd || this.state.showEdit || this.state.showAddCert)? this.mainView() : null}
       </div>
     );
   }
@@ -193,14 +283,14 @@ function AddView(props){ }
 
 function EditView(props){
   const [inspection_date, setInspection_date] = useState('');
-  const [sample_needed, setSample_needed] = useState(false);
+  const [sample_needed, setSample_needed] = useState('');
   const [violate, setViolate] = useState('');
   const [id_premise, setId_premise] = useState('');
   const [id_sample, setId_sample] = useState('');
   const [status, setStatus] = useState('');
   const [editting, setEditting] = useState(false);
   const [note, setNote] = useState(undefined);
-  const [create, setCreate] = useState(!props.samples || !props.sample || props.samples.find((s) => s.id == props.sample.id));
+  const [create, setCreate] = useState(!props.samples && !props.sample && props.samples.find((s) => s.id == props.sample.id));
   const [sample_status, setSample_status] = useState('');
   const [result_date, setResult_date] = useState(new Date());
   const [valid_sample, setValid_sample] = useState(true);
@@ -217,10 +307,10 @@ function EditView(props){
     if (create) {
       const newSample = {
         id_premise: props.premise.id,
-        accreditation_premise: 'abc',
+        accreditation_premise: "khongdatchuan",
         accreditation_status: sample_status? sample_status : "xuly",
         result_date: result_date,
-        result_valid: valid_sample
+        result_valid: valid_sample? valid_sample : true
       }
       SampleService.createSample(newSample).then((res) => {
         console.log(res);
@@ -233,17 +323,38 @@ function EditView(props){
         })
       })
     }
-    console.log(inspection);
-    setEditting(true);
-    InspectionService.updateInspection(inspection, props.old.id).then((res) => {
-      setEditting(false);
-      props.cancelEdit();
-    }).catch((err) => {
-      console.log(err);
-    })
+    else if (props.sample) {
+      console.log(inspection);
+      setEditting(true);
+      
+      const updateSample = {
+        id_premise: props.premise.id,
+        accreditation_premise: props.sample.accreditation_premise,
+        accreditation_status: sample_status? sample_status : props.sample.accreditation_status,
+        result_date: result_date? result_date : props.sample.result_date,
+        result_valid: valid_sample
+      }
+      console.log(props.sample);
+      console.log(updateSample);
+      SampleService.updateSample(updateSample, props.sample.id).then((res) => {
+        InspectionService.updateInspection(inspection, props.old.id).then((res) => {
+          setEditting(false);
+          props.cancelEdit();
+        }).catch((err) => {
+          console.log(err);
+        })
+      })
+    } else {
+      InspectionService.updateInspection(inspection, props.old.id).then((res) => {
+        setEditting(false);
+        props.cancelEdit();
+      }).catch((err) => {
+        console.log(err);
+      })
+    }
   }
 
-  return AuthService.getCurrentUser().isManager? (
+  return AuthService.getCurrentUser().is_manager? (
     <div className="jumbotron" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
       <h3 style={{textAlign: 'center'}}>CẬP NHẬT LỊCH THANH TRA</h3>
       <div style={{display: 'flex'}}>
@@ -266,7 +377,7 @@ function EditView(props){
           </div>
           <div className="form-group my-form-group form flex-row sp-between input-div div-center">
             <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Trạng thái mẫu</div>
-            <input type="text" className="form-control form-input" placeholder={props.sample? props.sample.status : null} disabled/>
+            <input type="text" className="form-control form-input" placeholder={props.sample? InspectionService.idToName(props.sample.accreditation_status) : null} disabled/>
           </div>
           <div className="form-group my-form-group form flex-row sp-between input-div div-center">
             <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Trạng thái</div>
@@ -287,7 +398,7 @@ function EditView(props){
               </div>
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
-              <input type="text" className="form-control form-input" placeholder={props.old.sample_needed? "Có" : "Không"} value={sample_needed} onChange={(e) => setSample_needed(e.target.value)} disabled/>
+              <input type="text" className="form-control form-input" placeholder={props.old.sample_needed? "Có" : "Không"} disabled/>
               {note? <div className="tiny-alert" role="alert">{note.sample_needed}</div> : null}
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
@@ -295,7 +406,7 @@ function EditView(props){
               {note? <div className="tiny-alert" role="alert">{note.id_sample}</div> : null}
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
-              <input type="text" className="form-control form-input" placeholder={props.sample? props.sample.status : null} disabled/>
+              <input type="text" className="form-control form-input" placeholder={props.sample? InspectionService.idToName(props.sample.accreditation_status) : null} disabled/>
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
               <input type="text" className="form-control form-input" placeholder={props.old.status} disabled/>
@@ -313,33 +424,145 @@ function EditView(props){
       <h3 style={{textAlign: 'center'}}>CẬP NHẬT TÌNH TRẠNG THANH TRA</h3>
       <div style={{flexDirection: 'row'}}><strong>Tên cơ sở: </strong>{props.premise.name}</div>
       <div style={{flexDirection: 'row'}}><strong>Ngày thanh tra: </strong>{props.old.inspection_date}</div>
-      <div style={{flexDirection: 'row'}}><strong>Cần lấy mẫu: </strong>{(props.old.sample_needed || sample_needed)? "Có" : 
+      <div style={{flexDirection: 'row'}}><strong>Cần lấy mẫu: </strong>{(props.old.sample_needed || sample_needed )? "Có" : 
           (<button className="" onClick={() => {setSample_needed(true); setCreate(true); console.log("??!!")}}>Tạo mẫu</button>)
         }
       </div>
-      {sample_needed && (
+      {(sample_needed || props.old.sample_needed) && (
         <>
         <div style={{flexDirection: 'row'}}><strong>Trạng thái mẫu: </strong>
-          <select defaultValue={"xuly"} onChange={(e) => setSample_status(e.target.value)}>
-            <option value="xuly">Đang xử lý</option>
-            <option value="datchuan">Đạt chuẩn</option>
-            <option value="khongdatchuan">Không đạt chuẩn</option>
+          <select defaultValue={props.sample? props.sample.accreditation_status : "xuly"} onChange={(e) => setSample_status(e.target.value)}>
+            <option value="xuly">{InspectionService.idToName("xuly")}</option>
+            <option value="datchuan">{InspectionService.idToName("datchuan")}</option>
+            <option value="khongdatchuan">{InspectionService.idToName("khongdatchuan")}</option>
           </select>
         </div>
         <div style={{flexDirection: 'row'}}><strong>Ngày có kết quả: </strong>
           <MyDatePicker onChange={(date) => setResult_date((date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate()))} />
         </div>
         <div style={{flexDirection: 'row'}}><strong>Mẫu hợp lệ: </strong>
-          <select defaultValue={true} onChange={(e) => setValid_sample(e.target.value)}>
-            <option value={true}>Hợp lệ</option>
-            <option value={false}>Không hợp lệ</option>
+          <select defaultValud={props.sample? props.sample.result_valid : true} onChange={(e) => setValid_sample(e.target.value)}>
+            <option value={true}>{SampleService.idToName(true)}</option>
+            <option value={false}>{SampleService.idToName(false)}</option>
           </select>
-        </div>
-        <div>
-          <button className="btn btn-primary" onClick={save}>Lưu</button>
         </div>
         </>
       )}
+      <div style={{flexDirection: 'row'}}><strong>Vi phạm: </strong>
+        <select defaultValue={props.old.violate} onChange={(e) => setViolate(e.target.value)}>
+          <option value={true}>{"Vi phạm"}</option>
+          <option value={false}>{"Không vi phạm"}</option>
+        </select>
+      </div>
+      <div style={{flexDirection: 'row'}}><strong>Trạng thái: </strong>
+        <select defaultValue={props.old.status} onChange={(e) => setStatus(e.target.value)}>
+          <option value="xuly">{InspectionService.idToName("xuly")}</option>
+          {violate? (
+            <>
+              {props.premise.id_certificate? (
+                <option value={"thuhoi"}>{InspectionService.idToName("thuhoi")}</option>
+              ) : (
+                <option value={"khongdatchuan"}>{InspectionService.idToName("khongdatchuan")}</option>
+              )}
+            </>
+          ) : (
+            <>
+              {props.premise.id_certificate? (
+                <option value={"datchuan"}>{InspectionService.idToName("datchuan")}</option>
+              ) : (
+                <option value={"capgiay"}>{InspectionService.idToName("capgiay")}</option>
+              )}
+            </>
+          )}
+        </select>
+      </div>
+      <div className="form-group my-form-group " style={{display: 'flex', justifyContent: 'space-around'}}>
+        <button className = "btn btn-success" onClick={save}>Lưu</button>
+        <button className = "btn btn-danger" onClick={props.cancelEdit}>Hủy</button>
+      </div>
+    </div>
+  );
+}
+
+function AddCertView(props){
+  const [id_business_type, setId_business_type] = useState('');
+  const [expired_date, setExpired_date] = useState('');
+  const [series, setSeries] = useState('');
+  const [adding, setAdding] = useState(false);
+  const [note, setNote] = useState(undefined);
+
+  const randomSeries = (length) => {
+    var result = '';
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+  } 
+
+  const accept = () => {
+    const obj = {
+      status: 'hieuluc',
+      id_business_type: props.premise.id_business_type,
+      issued_date: props.inspection.inspection_date,
+      expired_date: expired_date,
+      series: randomSeries(10)
+    }
+    console.log(obj);
+    setAdding(true);
+    CertificateService.createCertificate(obj).then((res) => {
+      var inspection = props.inspection;
+      var premise = props.premise;
+      inspection.status = "datchuan";
+      premise.id_certificate = res.data.id;
+      InspectionService.updateInspection(inspection, inspection.id).then((res) => {
+        PremisesService.updatePremise(premise, premise.id).then((res) => {
+          console.log(res);
+          setAdding(false);
+          props.cancelAdd();
+        })
+      })
+      //window.location.reload();
+    }).catch((err) => {
+      console.log(err);
+      setNote(err.response.data);
+      console.log(err.response.data);
+      setAdding(false);
+    })
+  }
+
+  return (
+    <div className="jumbotron" style={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'}}>
+      <h3 style={{textAlign: 'center'}}>CẤP GIẤY</h3>
+      <form className="form">
+        <div className="form-group my-form-group form flex-row sp-between input-div div-center">
+          <div className="mr-r-5 mn-w-180 pd-top-7" style={{height: '37px'}}>Cơ sở: </div>
+          <input type="text" className="form-control form-input" placeholder={props.premise.name} disabled/>
+        </div>
+        <div className="form-group my-form-group form flex-row sp-between input-div div-center">
+          <div className="mr-r-5 mn-w-180 pd-top-7" style={{height: '37px'}}>Loại hình kinh doanh: </div>
+          <input type="text" className="form-control form-input" placeholder={BusinessService.getBusiness(props.premise.id_business_type)} disabled/>
+        </div>
+        <div className="form-group my-form-group form flex-row sp-between input-div div-center">
+          <div className="mr-r-5 mn-w-180 pd-top-7" style={{height: '37px'}}>Ngày kiểm tra</div>
+          <input type="text" className="form-control form-input" placeholder={props.inspection.inspection_date} disabled/>
+        </div>
+        {/* <div className="form-group my-form-group form flex-row sp-between input-div div-center">
+          <div className=" mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Ngày kiểm tra</div>
+          <MyDatePicker onChange={(date) => setIssued_date(date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate())}/>
+          {note? <div className="tiny-alert" role="alert">{note.issued_date}</div> : null}
+        </div> */}
+        <div className="form-group my-form-group form flex-row sp-between input-div div-center">
+          <div className="mr-r-5 mn-w-180 pd-top-7" style={{height: '37px'}}>Hiệu lực</div>
+          <MyDatePicker onChange={(date) => setExpired_date(date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate())}/>
+          {note? <div className="tiny-alert" role="alert">{note.expired_date}</div> : null}
+        </div>
+      </form>
+      <div className="form-group my-form-group " style={{display: 'flex', justifyContent: 'space-around'}}>
+        <button className = "btn btn-success" onClick={accept}>Đồng ý</button>
+        <button className = "btn btn-danger" onClick={props.cancelAdd}>Hủy</button>
+      </div>
     </div>
   );
 }

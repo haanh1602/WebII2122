@@ -4,6 +4,7 @@ import config from './../config.json';
 import AuthService from "./auth.service";
 
 const API_URL = config.apiUrl;
+const validDic = [{name: "Hợp lệ", id: true}, {name: "Không hợp lệ", id: false}];
 
 class SampleService {
     getSamples() {
@@ -35,9 +36,17 @@ class SampleService {
             edit: user.is_manager,
             delete: user.is_manager,
             create: user.is_manager,
-            displayAction: user.is_manager
+            displayAction: false
         }
         return auth;
+    }
+
+    idToName(id) {
+        return validDic.find(i => i.id == id)? validDic.find(i => i.id == id).name : null;
+    }
+
+    nameToId(name) {
+        return validDic.find(i => i.name == name)? validDic.find(i => i.name == name).id : null;
     }
 }
 

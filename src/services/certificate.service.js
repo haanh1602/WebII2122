@@ -4,6 +4,7 @@ import config from './../config.json';
 import AuthService from "../services/auth.service";
 
 const API_URL = config.apiUrl;
+const statusDic = [{name: "Còn hiệu lực", id: "hieuluc"}, {name: "Bị thu hồi", id: "thuhoi"}, {name: "Hết hạn", id: "hethan"}];
 
 class CertificateService {
     getCertificates() {
@@ -37,6 +38,14 @@ class CertificateService {
             displayAction: true
         }
         return auth;
+    }
+
+    getStatus(status) {
+        return statusDic.find(s => s.id == status)? statusDic.find(s => s.id == status).name : null;
+    }
+
+    getForm(certId) {
+        return axios.get(API_URL + 'genform/' + certId + "/", { headers: authHeader() });
     }
 }
 

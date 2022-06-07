@@ -17,7 +17,7 @@ import BusinessOption from "./business-type-option.component";
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 
-var tableHeader = ["Series", "Loại hình kinh doanh", "Ngày kiểm tra", "Ngày hết hạn"];
+var tableHeader = ["ID", "Series", "Loại hình kinh doanh", "Trạng thái", "Ngày kiểm tra", "Ngày hết hạn"];
 
 export default class Certificate extends Component {
   constructor(props) {
@@ -115,6 +115,7 @@ export default class Certificate extends Component {
   renderContent() {
       return (
         <div className="container">
+          <h3 style={{textAlign: 'center'}}>Chứng nhận</h3>
           <table className="table table-bordered table-striped table-responsive-stack app-table"  id="tableOne">
             <thead className="thead-dark">
               <tr>{tableHeader.map((h, i) => {
@@ -125,10 +126,12 @@ export default class Certificate extends Component {
             <tbody>
               {
                 this.state.data.map((d, index) => {
-                  var {id, id_business_type, issued_date, expired_date, series} = d;
-                  return <tr key = {id}>
+                  var {id, id_business_type, status, issued_date, expired_date, series} = d;
+                  return <tr key = {id} className={status != "hieuluc"? "disable" : "my-tr"}>
+                    <td>{id}</td>
                     <td>{series}</td>
                     <td>{BusinessService.getBusiness(id_business_type)}</td>
+                    <td>{CertificateService.getStatus(status)}</td>
                     <td>{issued_date}</td>
                     <td>{expired_date}</td>
                     {this.actions(d)}
@@ -151,9 +154,6 @@ export default class Certificate extends Component {
           <div>Không có chứng nhận nào!</div>
           <div>Network: {this.state.content} </div>
         </div>}
-        <div className="add-field">
-          <button className="btn btn-success" onClick={() => {this.setState({showAdd: true})}}><span className="fa fa-plus"/> Thêm</button>
-        </div>
       </>
     )
   }

@@ -235,7 +235,10 @@ function AddView(props){
         </div>
         <div className="form-group my-form-group form flex-row sp-between input-div div-center">
           <div className=" mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Khu vực</div>
+          <div className="my-date-picker-form">
           <PhuongOption areaId = {props.quan} choose={(phuongId) => {setPhuong(phuongId); console.log(phuongId);}}/>
+          </div>
+          
           {note? <div className="tiny-alert" role="alert">{note.id_area}</div> : null}
         </div>
         <div className="form-group my-form-group form flex-row sp-between input-div div-center">
@@ -356,7 +359,10 @@ function EditView(props){
               {note? <div className="tiny-alert" role="alert">{note.password}</div> : null}
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
+              <div className="my-date-picker-form">
               <PhuongOption areaId = {props.quan} choose={(phuongId) => {setPhuong(phuongId); console.log(phuongId);}}/>
+              </div>
+              
               {note? <div className="tiny-alert" role="alert">{note.id_area}</div> : null}
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">

@@ -55,6 +55,12 @@ export default class Premises extends Component {
             parseInt(AuthService.getCurrentUser().id_area % 100000) == parseInt(p.id_area % 100000)
           )
         });
+        CertificateService.getCertificates().then((res) => {
+          this.setState({certificate: res.data.filter((c) => c.status == "hieuluc")});
+        })
+        InspectionService.getInspections().then((res) => {
+          this.setState({inspections: res.data.filter((i) => this.state.data.find((p) => p.id == i.id_premise))})
+        })
         console.log(response.data);
       },
       error => {
@@ -76,12 +82,6 @@ export default class Premises extends Component {
         // }
       }
     );
-    InspectionService.getInspections().then((res) => {
-      this.setState({inspections: res.data});
-    });
-    CertificateService.getCertificates().then((res) => {
-      this.setState({certificate: res.data});
-    })
   }
 
   handleClickDelete = (id) => {
@@ -181,9 +181,9 @@ export default class Premises extends Component {
           <div>Không có cơ sở nào!</div>
           <div>Network: {this.state.content} </div>
         </div>}
-        <div className="add-field">
+        {AuthService.getCurrentUser().is_manager? (<div className="add-field">
           <button className="btn btn-success" onClick={() => {this.setState({showAdd: true})}}><span className="fa fa-plus"/> Thêm</button>
-        </div>
+        </div>):null}
       </>
     )
   }
@@ -268,7 +268,9 @@ function AddView(props){
         </div>
         <div className="form-group my-form-group form flex-row sp-between input-div div-center">
           <div className=" mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Khu vực</div>
+          <div className="my-date-picker-form">
           <PhuongOption areaId = {props.quan} choose={(phuongId) => {setPhuong(phuongId); console.log(phuongId);}}/>
+          </div>
           {note? <div className="tiny-alert" role="alert">{note.id_area}</div> : null}
         </div>
         <div className="form-group my-form-group form flex-row sp-between input-div div-center">
@@ -278,9 +280,11 @@ function AddView(props){
         </div>
         <div className="form-group my-form-group form flex-row sp-between input-div div-center">
           <div className="mr-r-5 mn-w-80 pd-top-7" style={{height: '37px'}}>Kinh doanh</div>
+          <div className="my-date-picker-form">
           <BusinessOption choose={(businessTypeId) => {
             setBusiness(businessTypeId);
           }}/>
+          </div>
           {note? <div className="tiny-alert" role="alert">{note.id_business_type}</div> : null}
         </div>
         <div className="form-group my-form-group form flex-row sp-between input-div div-center">
@@ -390,7 +394,9 @@ function EditView(props){
               {note? <div className="tiny-alert" role="alert">{note.name}</div> : null}
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
+            <div className="my-date-picker-form">
                 <PhuongOption areaId = {props.old.id_area / 100000} choose={(phuongId) => {setPhuong(phuongId); console.log(phuongId);}}/>
+              </div>
               {note? <div className="tiny-alert" role="alert">{note.id_area}</div> : null}
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
@@ -398,9 +404,11 @@ function EditView(props){
               {note? <div className="tiny-alert" role="alert">{note.address}</div> : null}
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
+            <div className="my-date-picker-form">
               <BusinessOption choose={(businessTypeId) => {
                 setBusiness(businessTypeId);
               }}/>
+              </div>
               {note? <div className="tiny-alert" role="alert">{note.id_business_type}</div> : null}
             </div>
             <div className="form-group my-form-group form flex-row sp-between input-div div-center">
@@ -425,12 +433,14 @@ function EditView(props){
 function InfoView(props) {
   const [showLich, setShowLich] = useState(false);
   const [inspection_date, setInpection_date] = useState(new Date());
+  const inspections = props.inspections.filter((i) => i.id_premise == props.old.id);
 
   const createInspection = () => {
     console.log("???");
     const newInspection = {
       inspection_date: inspection_date,
-      id_premise: props.old.id
+      id_premise: props.old.id,
+      status: "xuly",
     };
     InspectionService.createInspection(newInspection).then((res) => {
       console.log(res);
@@ -448,12 +458,12 @@ function InfoView(props) {
         <div style={{flexDirection: 'row'}}><strong>Số điện thoại: </strong>{props.old.phone_number}</div>
         <div style={{flexDirection: 'row'}}><strong>Loại hình kinh doanh: </strong>{BusinessService.getBusiness(props.old.id_business_type)}</div>
         <div style={{flexDirection: 'row'}}><strong>Chứng nhận: </strong> {props.old.id_certificate? props.old.id_certificate : "Không có"}</div>
-        <div style={{flexDirection: 'row'}}><strong>Thanh tra lần cuối: </strong> </div>
+        <div style={{flexDirection: 'row'}}><strong>Thanh tra lần cuối: </strong>{PremisesService.lastInspection(inspections)? PremisesService.lastInspection(inspections).inspection_date : null}</div>
         <div style={{flexDirection: 'row'}}><strong>Thanh tra: </strong> 
-          {props.inspections.find((i) => i.id_premise == props.old.id)? 
-          props.inspections.find((i) => i.id_premise == props.old.id).inspection_date + " <Đã có lịch> " : "Không có lịch thanh tra!"}
+          {PremisesService.currentInspection(inspections)? 
+          PremisesService.currentInspection(inspections).inspection_date + " <Đã có lịch> " : "Không có lịch thanh tra!"}
         </div>
-        {!props.inspections.find((i) => i.id_premise == props.old.id) && !showLich && (
+        {AuthService.getCurrentUser().is_manager && !PremisesService.currentInspection(inspections) && !showLich && (
           <button className="btn btn-warning" onClick={() => setShowLich(true)}>Tạo lịch thanh tra</button>
         )}
         {showLich && (<div>

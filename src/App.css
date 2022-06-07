@@ -171,6 +171,18 @@ a {
   min-width: 120px;
 }
 
+.mn-w-150 {
+  min-width: 150px;
+}
+
+.mn-w-180 {
+  min-width: 180px;
+}
+
+.mn-w-200 {
+  min-width: 200px;
+}
+
 .mr-r-5 {
   margin-right: 5px;
 }
@@ -239,6 +251,14 @@ a {
 .my-tr:hover{
   background-color:rgba(0, 175, 15, 0.695) !important;
   cursor: pointer;
+}
+
+.disable {
+  background-color: #919191 !important;
+}
+
+.disable:hover {
+  background-color: #919191 !important;
 }
 
 .my-date-picker-form {

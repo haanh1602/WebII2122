@@ -40,6 +40,19 @@ class PremisesService {
         }
         return auth;
     }
+
+    lastInspection = (inspections) => {
+        var res = null;
+        for (var i = inspections.length - 1; i >= 0; i--) {
+            if (inspections[i].status != "xuly") return inspections[i];
+        }
+        return res;
+    }
+
+    currentInspection = (inspections) => {
+        var res = inspections.find((i) => i.status == "xuly");
+        return res;
+    }
 }
 
 export default new PremisesService();

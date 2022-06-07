@@ -4,6 +4,7 @@ import config from './../config.json';
 import AuthService from "../services/auth.service";
 
 const API_URL = config.apiUrl;
+const statusDic = [{name: "Đang xử lý", id: 'xuly'},{name: "Cấp giấy" , id: 'capgiay'}, {name: "Thu hồi", id: 'thuhoi'}, {name: "Đạt chuẩn", id: 'datchuan'}, {name: "Không đạt chuẩn", id: 'khongdatchuan'}];
 
 class InspectionService {
     getInspections() {
@@ -34,10 +35,18 @@ class InspectionService {
             edit: true,
             delete: user.is_manager,
             create: user.is_manager,
-            displayAction: true
+            displayAction: true,
         }
         return auth;
-      }
+    }
+
+    idToName(status) {
+        return statusDic.find(s => s.id === status)? statusDic.find(s => s.id == status).name : null;
+    }
+
+    nameToId(name) {
+        return statusDic.find(s => s.name == name)? statusDic.find(s => s.name == name).id : null;
+    }
 }
 
 export default new InspectionService();
